@@ -376,7 +376,6 @@
             2013-04-08 dan: Created
             </remarks>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:DocumentationVs12AddIn.Commands.MiscCommands.KillLine" -->
         <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.CreateDocumentationHeading">
             <summary>
              Creates a documentation Heading for the current line
@@ -401,6 +400,28 @@
             <summary>
             Enters a comment on the format yyyy-MM-dd, domain/user: 
             </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.FormatCurrentDocument">
+            <summary>
+             Formats the whole document
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.ActOnTab">
+            <summary>
+             Acts on the tab key press
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.ActOnShiftTab">
+            <summary>
+             Acts on Shift tab key press
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.MoveToXmlDocTagSimple(System.Boolean)">
+            <summary>
+             Moves the cursor to the next/previos xml doc comment tag
+            </summary>
+            <param name="forward" >Should we go to the next, set to true. Go to previous, set to false.</param>
+            <returns >True if we are in an XML doc tag, false otherwize</returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.AssertEndElement(System.String,System.String,System.String[])">
             <summary>

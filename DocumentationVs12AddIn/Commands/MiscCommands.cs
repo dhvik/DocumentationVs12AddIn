@@ -15,13 +15,7 @@ namespace DocumentationVs12AddIn.Commands {
 	public class MiscCommands:CommandBase {
 		private Dictionary<string,string> ExtractAttributesList;
 
-		/**
-	 * 
-	BindPreserve("Macros.Meridium.Documentator.FormatCurrentDocument", "Text Editor::Ctrl+Shift+d")
-	BindPreserve("Macros.Meridium.Documentator.ActOnTab", "Text Editor::Ctrl+<")
-	BindPreserve("Macros.Meridium.Documentator.ActOnShiftTab", "Text Editor::Ctrl+Shift+>")
-
-	 */
+	
 		[Command("Text Editor::Ctrl+Shift+k")]
 		public void KillLine() {
 			if (Selection == null)
@@ -207,6 +201,152 @@ namespace DocumentationVs12AddIn.Commands {
 			objSelection.LineUp();
 			objSelection.EndOfLine();
 
+
+		}
+		#endregion
+		#region "Sub FormatCurrentDocument()"
+		/// <summary>
+		///	 Formats the whole document
+		/// </summary>
+		[Command("Text Editor::Ctrl+Shift+d")]
+		public void FormatCurrentDocument() {
+			TextSelection sel = Selection;
+			Point p = GetPoint();
+
+			sel.StartOfDocument();
+			sel.EndOfDocument(true);
+
+			DTE.ExecuteCommand("Edit.FormatSelection");
+
+			MoveToPoint(p);
+
+		}
+		#endregion
+		#region "Sub ActOnTab()"
+		/// <summary>
+		///	 Acts on the tab key press
+		/// </summary>
+		[Command("Text Editor::Ctrl+<")]
+		public void ActOnTab() {
+			TextSelection sel = Selection;
+			Point p1 = GetPoint(sel.TopPoint);
+			Point p2 = GetPoint(sel.BottomPoint);
+
+			if (!MoveToXmlDocTagSimple(true)) {
+				if (p1.Equals(p2)) {
+					sel.Insert("\t");
+				} else {
+					MoveToPoint(p1);
+					MoveToPoint(p2, true);
+					DTE.ExecuteCommand("Edit.IncreaseLineIndent");
+				}
+			}
+			sel.ActivePoint.TryToShow();
+
+		}
+		#endregion
+		#region "Sub ActOnShiftTab()"
+		/// <summary>
+		///	 Acts on Shift tab key press
+		/// </summary>
+		[Command("Text Editor::Ctrl+Shift+>")]
+		public void ActOnShiftTab() {
+			TextSelection sel = Selection;
+			Point p1 = GetPoint(sel.TopPoint);
+			Point p2 = GetPoint(sel.BottomPoint);
+
+			if (!MoveToXmlDocTagSimple(false)) {
+				if (p1.Equals(p2)) {
+					Point p = GetPoint();
+					sel.CharLeft(true);
+					if (Regex.IsMatch(sel.Text, "^[\\t ]$")) {
+						sel.Delete();
+					} else {
+						MoveToPoint(p);
+					}
+				} else {
+					MoveToPoint(p1);
+					MoveToPoint(p2, true);
+					DTE.ExecuteCommand("Edit.DecreaseLineIndent");
+				}
+			}
+			sel.ActivePoint.TryToShow();
+
+		}
+		#endregion
+
+		#region "Function MoveToXmlDocTagSimple(Optional ByVal forward As Boolean = True) As Boolean"
+		/// <summary>
+		///	 Moves the cursor to the next/previos xml doc comment tag
+		/// </summary>
+		/// <param name="forward" >Should we go to the next, set to true. Go to previous, set to false.</param>
+		/// <returns >True if we are in an XML doc tag, false otherwize</returns>
+		private bool MoveToXmlDocTagSimple(bool forward = true) {
+			Point p = GetPoint();
+			TextSelection sel = (TextSelection)DTE.ActiveWindow.Document.Selection;
+			sel.StartOfLine();
+
+			string documentationPattern = "///";
+			if (IsBasic) {
+				documentationPattern = "'''";
+			}
+
+			if (sel.FindPattern("^[ \\t]*" + documentationPattern, (int) vsFindOptions.vsFindOptionsRegularExpression)) {
+				sel.Collapse();
+				Point p2 = GetPoint();
+				//if we is positioned before the /// or if /// is on another line, skip it
+				if (p.Y != p2.Y | p.X <= p2.X - 3) {
+					MoveToPoint(p);
+					return false;
+				}
+				MoveToPoint(p);
+				if (forward) {
+					if (sel.FindPattern("\\<[^/\\>]+\\>", (int) vsFindOptions.vsFindOptionsRegularExpression)) {
+						if (sel.ActivePoint.EqualTo(sel.TopPoint)) {
+							sel.SwapAnchor();
+						}
+						sel.Collapse();
+						p = GetPoint();
+						//if the start tag is alone at the end of the line, try to find the next line
+						sel.EndOfLine(true);
+						if (Regex.IsMatch(sel.Text, "^\\s*$")) {
+							if (sel.FindPattern(documentationPattern + " *", (int) vsFindOptions.vsFindOptionsRegularExpression)) {
+								sel.Collapse();
+								return true;
+							}
+						}
+						MoveToPoint(p);
+						return true;
+					}
+				} else {
+					//skip current tag
+					sel.FindPattern("\\<\\/[^/\\>]+\\>", (int) (vsFindOptions.vsFindOptionsRegularExpression + (int) vsFindOptions.vsFindOptionsBackwards));
+					sel.Collapse();
+
+					if (sel.FindPattern("\\<[^/\\>]+\\>", (int) (vsFindOptions.vsFindOptionsRegularExpression + (int) vsFindOptions.vsFindOptionsBackwards))) {
+						if (sel.ActivePoint.EqualTo(sel.TopPoint)) {
+							sel.SwapAnchor();
+						}
+						sel.Collapse();
+						p = GetPoint();
+						//if the start tag is alone at the end of the line, try to find the next line
+						sel.EndOfLine(true);
+						if (Regex.IsMatch(sel.Text, "^\\s*$")) {
+							if (sel.FindPattern(documentationPattern + " *", (int) vsFindOptions.vsFindOptionsRegularExpression)) {
+								sel.Collapse();
+								return true;
+							}
+						}
+						MoveToPoint(p);
+						return true;
+					}
+
+				}
+				MoveToPoint(p);
+				return true;
+			}
+			MoveToPoint(p);
+			return false;
 
 		}
 		#endregion
