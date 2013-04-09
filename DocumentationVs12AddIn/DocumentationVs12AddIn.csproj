@@ -66,7 +66,7 @@
     <Compile Include="Commands\DocumentCommands.cs" />
     <Compile Include="Commands\PasteTemplateCommand.cs" />
     <Compile Include="Commands\RegionCommands.cs" />
-    <Compile Include="Commands\KillLineCommand.cs" />
+    <Compile Include="Commands\MiscCommands.cs" />
     <Compile Include="Commands\SortLinesCommands.cs" />
     <Compile Include="Connect.cs">
       <SubType>Code</SubType>
