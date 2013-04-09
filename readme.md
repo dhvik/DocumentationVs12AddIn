@@ -22,6 +22,9 @@ The following files must be copied:
 
 [Read more on msdn about addin registering](http://msdn.microsoft.com/en-us/library/vstudio/19dax6cz.aspx)
 
+#Binaries
+For ease of use I have supplied a [binary package ready to download](DocumentationVs12Addin.1.0.4847.21712.rar).
+
 #Commands
 More about these commands can be found at <http://www.codeproject.com/Articles/9819/Automating-the-code-writing-process-using-macros>
 
