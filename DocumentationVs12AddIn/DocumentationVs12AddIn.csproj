@@ -138,7 +138,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="readme.md" />
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
