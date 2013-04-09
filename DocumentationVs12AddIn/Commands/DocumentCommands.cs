@@ -24,7 +24,8 @@ namespace DocumentationVs12AddIn.Commands {
 		public void DocumentAndRegionizeThis() {
 			DocumentAndRegionize(true);
 		}
-		private CodeElement DocumentAndRegionize(bool regionize) {
+
+		protected CodeElement DocumentAndRegionize(bool regionize) {
 			if (IsHtml) {
 				DocumentAndRegionizeHtml(regionize);
 				return null;
@@ -312,7 +313,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return true;
 		}
 
-		private Type GetElementType(CodeElement element) {
+		protected Type GetElementType(CodeElement element) {
 			switch (element.Kind) {
 				case vsCMElement.vsCMElementFunction:
 					return typeof(CodeFunction);
@@ -345,7 +346,7 @@ namespace DocumentationVs12AddIn.Commands {
 		/// </summary>
 		/// <param name="node" ></param>
 		/// <returns ></returns>
-		private void SetCursorToNodeText(XmlNode node, bool positionLast = false, bool searchForCursorMark = false) {
+		protected void SetCursorToNodeText(XmlNode node, bool positionLast = false, bool searchForCursorMark = false) {
 			var sel = (TextSelection)DTE.ActiveWindow.Selection;
 			bool emptyNode = node.InnerText.Length == 0 | Regex.IsMatch(node.InnerText, "^\\s*$");
 
@@ -401,56 +402,7 @@ namespace DocumentationVs12AddIn.Commands {
 		}
 		#endregion
 		#region "Private Function IsBetween(ByVal p As Point, ByVal startPoint As Point, ByVal endPoint As Point) As Boolean"
-		/// <summary>
-		/// Checks if a point is between the given start and end points
-		/// </summary>
-		/// <param name="p">The <see cref="Point"/> to check</param>
-		/// <param name="startPoint">The Startpoint</param>
-		/// <param name="endPoint">The endpoint</param>
-		/// <returns>True if the point is between the start and end points, false otherwize.</returns>
-		private bool IsBetween(Point p, Point startPoint, Point endPoint) {
-			//if point is not in range
-			if (p.Y < startPoint.Y | p.Y > endPoint.Y) {
-				return false;
-			}
 
-			// all points on the same line
-			if (startPoint.Y == endPoint.Y & p.Y == startPoint.Y) {
-				if (startPoint.X < endPoint.X & p.X >= startPoint.X & p.X < endPoint.X) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-
-			// start point and endpoint on different lines
-
-			if (startPoint.Y < endPoint.Y) {
-				//if point and enpoint on the same line
-				if (p.Y == endPoint.Y) {
-					//make sure that point is before endpoint
-					if (p.X < endPoint.X) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-				//if point and startpoint is on the same line
-				if (p.Y == startPoint.Y) {
-					//make sure that point is after startpoint
-					if (p.X >= startPoint.X) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-				//else it is between
-				return true;
-			}
-			//else 
-			return false;
-
-		}
 		#endregion
 		#region "Private Function CountLineBreaks(ByVal text As String) As Integer"
 		/// <summary>
@@ -481,7 +433,7 @@ namespace DocumentationVs12AddIn.Commands {
 		/// <param name="xdoc">The <see cref="XmlDocument"/> to save</param>
 		/// <param name="element">The <see cref="CodeElement"/> to save it to.</param>
 		/// <returns></returns>
-		private object SaveXMLDocumentation(XmlDocument xdoc, CodeElement element) {
+		protected object SaveXMLDocumentation(XmlDocument xdoc, CodeElement element) {
 			object functionReturnValue = null;
 			if (xdoc == null) {
 				return functionReturnValue;
@@ -1115,7 +1067,7 @@ namespace DocumentationVs12AddIn.Commands {
 		/// </summary>
 		/// <param name="element">The <see cref="CodeElement"/> prepare</param>
 		/// <returns>The prepared <see cref="XmlDocument"/> </returns>
-		private XmlDocument PrepareXMLDocumentation(CodeElement element) {
+		protected XmlDocument PrepareXMLDocumentation(CodeElement element) {
 			System.Reflection.PropertyInfo pInfo = GetPropertyInfo(element, "DocComment");
 			if (pInfo == null) {
 				return null;
@@ -1153,7 +1105,7 @@ namespace DocumentationVs12AddIn.Commands {
 		/// <param name="defaultValue" ></param>
 		/// <param name="firstNode" ></param>
 		/// <returns ></returns>
-		private XmlNode EnsureNode(XmlDocument xdoc, string path, string defaultValue = "", bool firstNode = false) {
+		protected XmlNode EnsureNode(XmlDocument xdoc, string path, string defaultValue = "", bool firstNode = false) {
 			XmlNode node = CreateElement(xdoc, path);
 
 
@@ -1305,217 +1257,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return element1;
 		}
 		#endregion
-		#region "Private Function GetElement() As CodeElement"
-		/// <summary>
-		/// Gets the CodeElement where the cursor is positioned.
-		/// </summary>
-		/// <returns>The found element</returns>
-		private CodeElement GetElement() {
-			Point p = GetPoint();
-			TextSelection sel = (TextSelection)DTE.ActiveDocument.Selection;
-			object o = null;
-
-			do {
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementProperty];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementFunction];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementVariable];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementEnum];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementEvent];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementStruct];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementDelegate];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementInterface];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementClass];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				o = sel.ActivePoint.CodeElement[vsCMElement.vsCMElementNamespace];
-				if (((o != null))) {
-					break; // TODO: might not be correct. Was : Exit Do
-				}
-				break; // TODO: might not be correct. Was : Exit Do
-			} while (true);
-			if (o == null) {
-				return null;
-			}
-			return (CodeElement)o;
-		}
-		#endregion
-		#region "Private Sub PasteSeeXmlDocParamTag()"
-		/// <summary>
-		/// Pastes a See xml doc tag in the current xml documentation node
-		/// </summary>
-		private void PasteSeeXmlDocParamTag() {
-			Point p = GetPoint();
-			TextSelection sel = (TextSelection)DTE.ActiveWindow.Document.Selection;
-
-			dynamic xmlDocTag = GetCurrentXmlDocTag();
-			if (xmlDocTag == null) {
-				return;
-			}
-			CodeTypeRef type = default(CodeTypeRef);
-
-			CodeElement ce = GetNextElement();
-			switch (string.Empty) {
-				case "apa":
-					break;
-			}
-			string s = GetTagName(xmlDocTag);
-			switch (s) {
-				case "param":
-					//get name of param
-					Match m = Regex.Match(xmlDocTag, "name=\"(.+?)\"");
-
-					if (!m.Success) {
-						return;
-					}
-					string paramName = m.Groups[1].Value;
-					type = GetParameterType(ce, paramName);
-
-					break;
-				case "summary":
-				case "value":
-				case "returns":
-					type = GetReturnValueType(ce);
-
-					break;
-
-			}
-
-			if ((type != null)) {
-				sel.Insert(GetSeeXmlDocTagByType(type) + " ");
-			}
-
-
-		}
-		#endregion
-		#region "Private Function GetSeeXmlDocTagByType(ByVal type As CodeTypeRef) As String"
-		/// <summary>
-		/// Gets a xml documentation see tag by supplying a CodeTypeRef
-		/// </summary>
-		/// <param name="type">The type to get the see tag of</param>
-		/// <returns>The see tag</returns>
-		private string GetSeeXmlDocTagByType(CodeTypeRef type) {
-			return GetSeeXmlDocTag(GetTypeName(type));
-		}
-		#endregion
-		#region "Private Function GetTypeName(ByVal type As CodeTypeRef) As String"
-		/// <summary>
-		/// Gets the name of the supplied type.
-		/// </summary>
-		/// <param name="type">The type</param>
-		/// <returns>The name of the type</returns>
-		private string GetTypeName(CodeTypeRef type) {
-			string name = null;
-			try {
-				name = type.CodeType.FullName;
-			} catch (Exception ex) {
-				name = type.AsString;
-			}
-			string finalName = null;
-			char[] separatorCharacters = new char[] {
-		'<',
-		'>',
-		','
-	};
-			List<string> importedNamespaces = GetImportedNamespaces();
-			while ((name.Length > 0)) {
-				int i = name.IndexOfAny(separatorCharacters);
-				if (i == -1) {
-					finalName += RemoveRedundantQualifiersFromTypeName(name, importedNamespaces);
-					name = "";
-				} else if (i == 0) {
-					finalName += name.Substring(0, 1);
-					name = name.Substring(1);
-				} else {
-					finalName += RemoveRedundantQualifiersFromTypeName(name.Substring(0, i), importedNamespaces) + name.Substring(i, 1);
-					name = name.Substring(i + 1);
-				}
-			}
-			return finalName;
-		}
-		#endregion
-		#region "Private Function RemoveRedundantQualifiersFromTypeName(ByVal typeName As String, ByVal importedNamespaces As List(Of String)) As String"
-		/// <summary>
-		/// Shortens the type name to minimize the type name
-		/// </summary>
-		/// <param name="typeName">The name of the type</param>
-		/// <param name="importedNamespaces">The <see cref="List{t}"/> of imported namespaces</param>
-		/// <returns></returns>
-		private string RemoveRedundantQualifiersFromTypeName(string typeName, List<string> importedNamespaces) {
-			if (typeName == null) {
-				return null;
-			}
-			string finalName = "";
-			typeName = typeName.Trim();
-
-			while ((typeName.Length > 0)) {
-				dynamic index = typeName.LastIndexOf(".");
-				if (index == -1) {
-					finalName = typeName + finalName;
-					break; // TODO: might not be correct. Was : Exit While
-				} else {
-					finalName = typeName.Substring(index) + finalName;
-					typeName = typeName.Substring(0, index);
-					if (importedNamespaces.Contains(typeName)) {
-						break; // TODO: might not be correct. Was : Exit While
-					}
-				}
-			}
-			if ((finalName.StartsWith("."))) {
-				finalName = finalName.Substring(1);
-			}
-			return finalName;
-		}
-		#endregion
-		#region "Private Function GetImportedNamespaces() As List(Of String)"
-		/// <summary>
-		/// Gets the imported namespaces for the current document.
-		/// </summary>
-		/// <returns></returns>
-		private List<string> GetImportedNamespaces() {
-			List<string> list = new List<string>();
-			DTE2 dte2 = (DTE2)DTE;
-			FileCodeModel2 fileCM = (FileCodeModel2)dte2.ActiveDocument.ProjectItem.FileCodeModel;
-			CodeElement2 elt = default(CodeElement2);
-			int i = 0;
-			//MsgBox("About to walk top-level elements ...")
-			for (i = 1; i <= fileCM.CodeElements.Count; i++) {
-				elt = (CodeElement2)fileCM.CodeElements.Item(i);
-				if (elt.Kind == vsCMElement.vsCMElementImportStmt) {
-					CodeImport imp = (CodeImport)elt;
-					list.Add(imp.Namespace);
-				} else if (elt.Kind == vsCMElement.vsCMElementNamespace) {
-					CodeNamespace ns = (CodeNamespace)elt;
-					list.Add(ns.FullName);
-				}
-			}
-			return list;
-		}
-		#endregion
+		
 		#region "Private Function GetHtmlTagType(ByVal type As String, ByVal tag As String) As String"
 		/// <summary>
 		/// Gets a html tag with the supplied type as content
@@ -1531,174 +1273,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return "<" + tag + ">" + type + "</" + tag + ">";
 		}
 		#endregion
-		#region "Private Function GetCurrentXmlDocTag() As String"
-		/// <summary>
-		/// Gets the current XmlDoc tag
-		/// </summary>
-		/// <returns>The complete xml tag that we are in</returns>
-		private string GetCurrentXmlDocTag() {
-			Point p = GetPoint();
-			TextSelection sel = (TextSelection)DTE.ActiveWindow.Document.Selection;
-
-			Point startPoint = Point.Empty;
-			Point endPoint = Point.Empty;
-
-			string tag = null;
-			//if (sel.FindPattern("\\<[^\\>]+\\>", vsFindOptions.vsFindOptionsBackwards + vsFindOptions.vsFindOptionsRegularExpression)) {
-			if (sel.FindPattern(@"\<[^\>]+\>", (int)(vsFindOptions.vsFindOptionsBackwards + (int)vsFindOptions.vsFindOptionsRegularExpression))) {
-				startPoint = GetPoint();
-				tag = sel.Text;
-
-				string tagName = GetTagName(tag);
-				if (tagName == null) {
-					return null;
-				}
-
-				if (sel.FindPattern("\\</" + tagName + "\\>", (int)vsFindOptions.vsFindOptionsRegularExpression)) {
-					endPoint = GetPoint();
-				}
-			}
-			if (!IsBetween(p, startPoint, endPoint)) {
-				tag = null;
-			}
-			MoveToPoint(p);
-			return tag;
-		}
-		#endregion
-		#region "Private Function GetTagName(ByVal tag As String) As String"
-		/// <summary>
-		/// Gets the tagname of the supplied xml tag
-		/// </summary>
-		/// <param name="tag">The xml tag</param>
-		/// <returns>The element name of the tag</returns>
-		private string GetTagName(string tag) {
-			Match m = Regex.Match(tag, "<([^>\\s]+)");
-			if (m.Success) {
-				return m.Groups[1].Value;
-			}
-			return null;
-		}
-		#endregion
-		#region "Private Function GetParameterType(ByVal ce As CodeElement, ByVal parameterName As String) As CodeTypeRef"
-		/// <summary>
-		/// Gets the type of the parameter
-		/// </summary>
-		/// <param name="ce">The codeElement (CodeFunction) that has the parameter</param>
-		/// <param name="parameterName">The name of the parameter</param>
-		/// <returns>The type that the parameter has, or nothing if the parameter was not found</returns>
-		private CodeTypeRef GetParameterType(CodeElement ce, string parameterName) {
-			switch (ce.Kind) {
-				case vsCMElement.vsCMElementFunction:
-					CodeFunction cf = (CodeFunction)ce;
-					foreach (CodeParameter p in cf.Parameters) {
-						if (p.Name == parameterName) {
-							return p.Type;
-						}
-					}
-
-					break;
-				case vsCMElement.vsCMElementDelegate:
-					CodeDelegate cd = (CodeDelegate)ce;
-					foreach (CodeParameter p in cd.Parameters) {
-						if (p.Name == parameterName) {
-							return p.Type;
-						}
-					}
-
-					break;
-			}
-			return null;
-		}
-		#endregion
-		#region "Private Function GetReturnValueType(ByVal ce As CodeElement) As CodeTypeRef"
-		/// <summary>
-		/// Gets the returnvalue type of the given CodeElement
-		/// </summary>
-		/// <param name="ce">The code element to retrieve the return type from</param>
-		/// <returns>The <see cref="CodeTypeRef"/> that is the returnvalue of the element</returns>
-		private CodeTypeRef GetReturnValueType(CodeElement ce) {
-			switch (ce.Kind) {
-				case vsCMElement.vsCMElementFunction:
-					return ((CodeFunction)ce).Type;
-				case vsCMElement.vsCMElementProperty:
-					return ((CodeProperty)ce).Type;
-				case vsCMElement.vsCMElementVariable:
-					return ((CodeVariable)ce).Type;
-			}
-			return null;
-		}
-		#endregion
-		#region "Private Function GetNextElement() As CodeElement"
-		/// <summary>
-		/// Gets the next CodeElement that follows the cursor
-		/// </summary>
-		/// <returns>The found <see cref="CodeElement"/> or Nothing if no more elements could be found</returns>
-		private CodeElement GetNextElement() {
-			Point p = GetPoint();
-			CodeElement ce = GetElement();
-
-			//if we didn't get any element at the given position,
-			//try to move to the next line and try again.
-			if (ce == null) {
-				Point p2 = new Point(1, p.Y);
-
-				do {
-					p2.Y = p2.Y + 1;
-					MoveToPoint(p2);
-					Point p3 = GetPoint();
-					if (p2.Y != p3.Y) {
-						break; // TODO: might not be correct. Was : Exit Do
-					}
-					ce = GetElement();
-					if ((ce != null)) {
-						if (ce.Kind == vsCMElement.vsCMElementParameter) {
-							//ignore parameters
-						} else {
-							break; // TODO: might not be correct. Was : Exit Do
-						}
-					}
-				} while (true);
-
-				MoveToPoint(p);
-
-				if (ce == null) {
-					return null;
-				} else {
-					return ce;
-				}
-			}
-			if (ce.Kind == vsCMElement.vsCMElementClass) {
-				CodeClass cc = (CodeClass)ce;
-				foreach (CodeElement elem in cc.Members) {
-					if (elem.StartPoint.Line > p.Y) {
-						return elem;
-					}
-				}
-			} else if (ce.Kind == vsCMElement.vsCMElementInterface) {
-				CodeInterface cc = (CodeInterface)ce;
-				foreach (CodeElement elem in cc.Members) {
-					if (elem.StartPoint.Line > p.Y) {
-						return elem;
-					}
-				}
-			} else if (ce.Kind == vsCMElement.vsCMElementStruct) {
-				CodeStruct cc = (CodeStruct)ce;
-				foreach (CodeElement elem in cc.Members) {
-					if (elem.StartPoint.Line > p.Y) {
-						return elem;
-					}
-				}
-			} else if (ce.Kind == vsCMElement.vsCMElementNamespace) {
-				CodeNamespace cn = (CodeNamespace)ce;
-				foreach (CodeElement elem in cn.Members) {
-					if (elem.StartPoint.Line > p.Y) {
-						return elem;
-					}
-				}
-			}
-			return null;
-		}
-		#endregion
+		
 		#region "Private Function HTMLEncodeText(ByVal text As String) As String"
 		/// <summary>
 		/// Encodes the supplied text to html
@@ -1889,6 +1464,47 @@ namespace DocumentationVs12AddIn.Commands {
 
 				Point p2 = GetPoint();
 				//TODO:unfinished business
+			}
+
+		}
+
+		/// <summary>
+		/// Enters a remark on the format yyyy-MM-dd, domain/user:
+		/// </summary>
+		[Command("Text Editor::Ctrl+Shift+Alt+c")]
+		public void EnterCodeRemark() {
+			CodeElement element1 = DocumentAndRegionize(false);
+			if (element1 == null) {
+				return;
+			}
+			TextSelection selection1 = (TextSelection)DTE.ActiveWindow.Document.Selection;
+			Point startPoint = GetPoint(selection1.ActivePoint);
+
+			Type type = GetElementType(element1);
+			if (type == null) {
+				return;
+			}
+
+
+			try {
+				XmlDocument xdoc = PrepareXMLDocumentation(element1);
+				if (xdoc == null) {
+					MoveToPoint(startPoint);
+					return;
+				}
+				EnsureNode(xdoc, "/doc/summary", " ", true);
+				XmlNode remarksNode = EnsureNode(xdoc, "/doc/remarks");
+				//Dim remarksNode As XmlNode = CreateElement(xdoc, "/doc/remarks")
+				remarksNode.InnerXml += Environment.NewLine + "<para>" + DateTime.Now.ToString("yyyy-MM-dd") + ", " + Environment.UserDomainName + "\\" + Environment.UserName + ": |</para>";
+				SaveXMLDocumentation(xdoc, element1);
+				SetCursorToNodeText(remarksNode, true, true);
+
+			} catch (Exception exception1) {
+				//if anything goes wrong, return to old position
+				MoveToPoint(startPoint);
+				element1 = null;
+				MessageBox.Show(exception1.Message, "Documentator", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+
 			}
 
 		}

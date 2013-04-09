@@ -66,6 +66,88 @@
             and the active point is at the bottom. if we have started to mark part of the last line, inlcude the whole line
             </summary>
         </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.IsBetween(System.Drawing.Point,System.Drawing.Point,System.Drawing.Point)">
+            <summary>
+            Checks if a point is between the given start and end points
+            </summary>
+            <param name="p">The <see cref="T:System.Drawing.Point"/> to check</param>
+            <param name="startPoint">The Startpoint</param>
+            <param name="endPoint">The endpoint</param>
+            <returns>True if the point is between the start and end points, false otherwize.</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetElement">
+            <summary>
+            Gets the CodeElement where the cursor is positioned.
+            </summary>
+            <returns>The found element</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.PasteSeeXmlDocParamTag">
+            <summary>
+            Pastes a See xml doc tag in the current xml documentation node
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetSeeXmlDocTagByType(EnvDTE.CodeTypeRef)">
+            <summary>
+            Gets a xml documentation see tag by supplying a CodeTypeRef
+            </summary>
+            <param name="type">The type to get the see tag of</param>
+            <returns>The see tag</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetTypeName(EnvDTE.CodeTypeRef)">
+            <summary>
+            Gets the name of the supplied type.
+            </summary>
+            <param name="type">The type</param>
+            <returns>The name of the type</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.RemoveRedundantQualifiersFromTypeName(System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            Shortens the type name to minimize the type name
+            </summary>
+            <param name="typeName">The name of the type</param>
+            <param name="importedNamespaces">The <see cref="T:System.Collections.Generic.List`1"/> of imported namespaces</param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetImportedNamespaces">
+            <summary>
+            Gets the imported namespaces for the current document.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetCurrentXmlDocTag">
+            <summary>
+            Gets the current XmlDoc tag
+            </summary>
+            <returns>The complete xml tag that we are in</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetTagName(System.String)">
+            <summary>
+            Gets the tagname of the supplied xml tag
+            </summary>
+            <param name="tag">The xml tag</param>
+            <returns>The element name of the tag</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetParameterType(EnvDTE.CodeElement,System.String)">
+            <summary>
+            Gets the type of the parameter
+            </summary>
+            <param name="ce">The codeElement (CodeFunction) that has the parameter</param>
+            <param name="parameterName">The name of the parameter</param>
+            <returns>The type that the parameter has, or nothing if the parameter was not found</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetReturnValueType(EnvDTE.CodeElement)">
+            <summary>
+            Gets the returnvalue type of the given CodeElement
+            </summary>
+            <param name="ce">The code element to retrieve the return type from</param>
+            <returns>The <see cref="T:EnvDTE.CodeTypeRef"/> that is the returnvalue of the element</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetNextElement">
+            <summary>
+            Gets the next CodeElement that follows the cursor
+            </summary>
+            <returns>The found <see cref="T:EnvDTE.CodeElement"/> or Nothing if no more elements could be found</returns>
+        </member>
         <member name="P:DocumentationVs12AddIn.Commands.CommandBase.DTE">
             <summary>
             Get/Sets the DTE of the CommandBase
@@ -87,15 +169,6 @@
             </summary>
             <param name="node" ></param>
             <returns ></returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.IsBetween(System.Drawing.Point,System.Drawing.Point,System.Drawing.Point)">
-            <summary>
-            Checks if a point is between the given start and end points
-            </summary>
-            <param name="p">The <see cref="T:System.Drawing.Point"/> to check</param>
-            <param name="startPoint">The Startpoint</param>
-            <param name="endPoint">The endpoint</param>
-            <returns>True if the point is between the start and end points, false otherwize.</returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.CountLineBreaks(System.String)">
             <summary>
@@ -217,45 +290,6 @@
             </summary>
             <returns>The found element</returns>
         </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetElement">
-            <summary>
-            Gets the CodeElement where the cursor is positioned.
-            </summary>
-            <returns>The found element</returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.PasteSeeXmlDocParamTag">
-            <summary>
-            Pastes a See xml doc tag in the current xml documentation node
-            </summary>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetSeeXmlDocTagByType(EnvDTE.CodeTypeRef)">
-            <summary>
-            Gets a xml documentation see tag by supplying a CodeTypeRef
-            </summary>
-            <param name="type">The type to get the see tag of</param>
-            <returns>The see tag</returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetTypeName(EnvDTE.CodeTypeRef)">
-            <summary>
-            Gets the name of the supplied type.
-            </summary>
-            <param name="type">The type</param>
-            <returns>The name of the type</returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.RemoveRedundantQualifiersFromTypeName(System.String,System.Collections.Generic.List{System.String})">
-            <summary>
-            Shortens the type name to minimize the type name
-            </summary>
-            <param name="typeName">The name of the type</param>
-            <param name="importedNamespaces">The <see cref="T:System.Collections.Generic.List`1"/> of imported namespaces</param>
-            <returns></returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetImportedNamespaces">
-            <summary>
-            Gets the imported namespaces for the current document.
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetHtmlTagType(System.String,System.String)">
             <summary>
             Gets a html tag with the supplied type as content
@@ -263,40 +297,6 @@
             <param name="type">Contents of the tag</param>
             <param name="tag">Name of the tag</param>
             <returns>The constructed tag</returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetCurrentXmlDocTag">
-            <summary>
-            Gets the current XmlDoc tag
-            </summary>
-            <returns>The complete xml tag that we are in</returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetTagName(System.String)">
-            <summary>
-            Gets the tagname of the supplied xml tag
-            </summary>
-            <param name="tag">The xml tag</param>
-            <returns>The element name of the tag</returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetParameterType(EnvDTE.CodeElement,System.String)">
-            <summary>
-            Gets the type of the parameter
-            </summary>
-            <param name="ce">The codeElement (CodeFunction) that has the parameter</param>
-            <param name="parameterName">The name of the parameter</param>
-            <returns>The type that the parameter has, or nothing if the parameter was not found</returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetReturnValueType(EnvDTE.CodeElement)">
-            <summary>
-            Gets the returnvalue type of the given CodeElement
-            </summary>
-            <param name="ce">The code element to retrieve the return type from</param>
-            <returns>The <see cref="T:EnvDTE.CodeTypeRef"/> that is the returnvalue of the element</returns>
-        </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetNextElement">
-            <summary>
-            Gets the next CodeElement that follows the cursor
-            </summary>
-            <returns>The found <see cref="T:EnvDTE.CodeElement"/> or Nothing if no more elements could be found</returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.HTMLEncodeText(System.String)">
             <summary>
@@ -346,6 +346,11 @@
             <param name="attrValue">The value of the attribute</param>
             <returns></returns>
         </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.EnterCodeRemark">
+            <summary>
+            Enters a remark on the format yyyy-MM-dd, domain/user:
+            </summary>
+        </member>
         <member name="T:DocumentationVs12AddIn.Commands.PasteTemplateCommand">
             <summary>
             Summary description for PasteTemplateCommand.
@@ -363,13 +368,96 @@
             2013-04-08 dan: Created
             </remarks>
         </member>
-        <member name="T:DocumentationVs12AddIn.Commands.KillLineCommand">
+        <member name="T:DocumentationVs12AddIn.Commands.MiscCommands">
             <summary>
-            Summary description for KillLineCommand.
+            Summary description for MiscCommands.
             </summary>
             <remarks>
             2013-04-08 dan: Created
             </remarks>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:DocumentationVs12AddIn.Commands.MiscCommands.KillLine" -->
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.CreateDocumentationHeading">
+            <summary>
+             Creates a documentation Heading for the current line
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.PasteSeeParameterXmlDocTag">
+            <summary>
+            Pastes the See parameter xml document tag in the current documentation section
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.MakeCData">
+            <summary>
+            Makes the selected text CData and adds pre tags around it.
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.FixHtmlValidationErrors">
+            <summary>
+            Fixes some HTML validation errors.
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.EnterCodeComment">
+            <summary>
+            Enters a comment on the format yyyy-MM-dd, domain/user: 
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.AssertEndElement(System.String,System.String,System.String[])">
+            <summary>
+            Makes sure that the found elements with the supplied name has an end tag
+            </summary>
+            <param name="text">The text to parse</param>
+            <param name="elem">The name of the element to find</param>
+            <param name="parentElements">The list of allowed parent elements</param>
+            <returns>The resulting text</returns>
+            <remarks>Is designed to add missing &lt;/li&gt; tags.</remarks>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.EnsureAttribute(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Searches for tags and adds an attribute if they don't have them
+            </summary>
+            <param name="text">The text to search in</param>
+            <param name="tagName">The name of the tag to search for</param>
+            <param name="attribute">The name of the attribute to ensure</param>
+            <param name="value">The value of the attribute to use if no attribute is found</param>
+            <returns>The replaced text</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.BuildTag(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Builds a start tag from a name and a set of attributes
+            </summary>
+            <param name="tag">The name of the tag</param>
+            <param name="attr">The attributes of the tag</param>
+            <returns>The built tag</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.ExtractAttributesMatchEvaluator(System.Text.RegularExpressions.Match)">
+            <summary>
+            Extracts attributes from the text and adds the found key/value pair to the ExtractAttributesList
+            </summary>
+            <param name="m">The <see cref="T:System.Text.RegularExpressions.Match"/> containing the attribute.</param>
+            <returns>An empty string if the match contained an attribute.</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.ExtractAttributes(System.String)">
+            <summary>
+            Finds all attribute key/value pairs in the supplied tag.
+            </summary>
+            <param name="tag">The complete tag to parse</param>
+            <returns>A <see cref="T:System.Collections.Hashtable"/> containing the found attributes</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.FixAttributesMatchEvaluator(System.Text.RegularExpressions.Match)">
+            <summary>
+            When this is called on an attribute match where the name and value are divided in two matching groups
+            this will replace the attribute with a lowercase name and quote the value if not already quoted.
+            </summary>
+            <param name="m">The Match containing the attribute</param>
+            <returns>The match replacement</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.ParseAttribute(System.String)">
+            <summary>
+            Parses an attribute key/value pair
+            </summary>
+            <param name="att">The text to parse</param>
+            <returns>The found <see cref="!:KeyValuePair&lt;string,string&gt;"/> or nothing if no attribute was found</returns>
         </member>
         <member name="T:DocumentationVs12AddIn.Commands.SortLinesCommands">
             <summary>
