@@ -17,9 +17,46 @@
             Initializes a new instance of the <b>CommandAttribute</b> class.
             </summary>
         </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandAttribute.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <b>CommandAttribute</b> class.
+            </summary>
+            <param name="name"></param>
+            <param name="keyBinding"></param>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <b>CommandAttribute</b> class.
+            </summary>
+            <param name="keyBinding"></param>
+        </member>
         <member name="P:DocumentationVs12AddIn.Commands.CommandAttribute.Name">
             <summary>
             Get/Sets the Name of the CommandAttribute
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandAttribute.Description">
+            <summary>
+            Get/Sets the Description of the CommandAttribute
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandAttribute.IconId">
+            <summary>
+            Get/Sets the IconId of the CommandAttribute
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandAttribute.KeyBinding">
+            <summary>
+            Get/Sets the KeyBinding of the CommandAttribute
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandAttribute.CommandName">
+            <summary>
+            Get/Sets the CommandName of the CommandAttribute
             </summary>
             <value></value>
         </member>
@@ -401,7 +438,18 @@
             2013-04-09 dan: Created
             </remarks>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:DocumentationVs12AddIn.Commands.PasteTemplateCommand.PasteTemplate" -->
+        <member name="M:DocumentationVs12AddIn.Commands.PasteTemplateCommand.PasteTemplate">
+            <summary>
+            Creates a template insertion by the written keyword
+            </summary>
+            <remarks>
+            Currently the following keywords is defined
+             fori writes a <c><![CDATA[for(int i=0;i<|.Count;i++) {...]]></c> template
+             tryc writes a try catch template
+             trycf writes a try catch finally template
+             tryf writes a try finally template
+            </remarks>
+        </member>
         <member name="T:DocumentationVs12AddIn.Commands.RegionCommands">
             <summary>
             Summary description for RegionCommands.
@@ -580,8 +628,7 @@
             <summary>
             Sorts the selected lines
             </summary>
-            <param name="reverse" ></param>
-            <returns ></returns>
+            <param name="reverse"></param>
         </member>
         <member name="T:DocumentationVs12AddIn.Connect">
             <summary>The object for implementing an Add-in.</summary>

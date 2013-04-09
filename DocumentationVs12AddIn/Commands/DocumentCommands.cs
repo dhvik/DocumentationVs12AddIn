@@ -16,15 +16,76 @@ namespace DocumentationVs12AddIn.Commands {
 	/// 2013-04-09 dan: Created
 	/// </remarks>
 	public class DocumentCommands : CommandBase {
+		#region public void DocumentThis()
+		/// <summary>
+		/// Documents the current member
+		/// </summary>
 		[Command("Text Editor::Ctrl+Alt+d")]
 		public void DocumentThis() {
 			DocumentAndRegionize(false);
 		}
+		#endregion
+		#region public void DocumentAndRegionizeThis()
+		/// <summary>
+		/// Documents the current member and adds regions
+		/// </summary>
 		[Command("Text Editor::Ctrl+d")]
 		public void DocumentAndRegionizeThis() {
 			DocumentAndRegionize(true);
 		}
+		#endregion
+		#region public void EnterCodeRemark()
+		/// <summary>
+		/// Enters a remark on the format yyyy-MM-dd, domain/user:
+		/// </summary>
+		[Command("Text Editor::Ctrl+Shift+Alt+c")]
+		public void EnterCodeRemark() {
+			CodeElement element1 = DocumentAndRegionize(false);
+			if (element1 == null) {
+				return;
+			}
+			TextSelection selection1 = Selection;
+			Point startPoint = GetPoint(selection1.ActivePoint);
 
+			Type type = GetElementType(element1);
+			if (type == null) {
+				return;
+			}
+
+
+			try {
+				XmlDocument xdoc = PrepareXMLDocumentation(element1);
+				if (xdoc == null) {
+					MoveToPoint(startPoint);
+					return;
+				}
+				EnsureNode(xdoc, "/doc/summary", " ", true);
+				XmlNode remarksNode = EnsureNode(xdoc, "/doc/remarks");
+				//Dim remarksNode As XmlNode = CreateElement(xdoc, "/doc/remarks")
+				remarksNode.InnerXml += Environment.NewLine + "<para>" + DateTime.Now.ToString("yyyy-MM-dd") + ", " + Environment.UserDomainName + "\\" + Environment.UserName + ": |</para>";
+				SaveXMLDocumentation(xdoc, element1);
+				SetCursorToNodeText(remarksNode, true, true);
+
+			} catch (Exception exception1) {
+				//if anything goes wrong, return to old position
+				MoveToPoint(startPoint);
+				element1 = null;
+				MessageBox.Show(exception1.Message, "Documentator", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+
+			}
+
+		}
+		#endregion
+
+		/* *******************************************************************
+		 *  Private/protected methods
+		 * *******************************************************************/
+		#region protected CodeElement DocumentAndRegionize(bool regionize)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="regionize"></param>
+		/// <returns></returns>
 		protected CodeElement DocumentAndRegionize(bool regionize) {
 			if (IsHtml) {
 				DocumentAndRegionizeHtml(regionize);
@@ -56,7 +117,11 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return ce;
 		}
-
+		#endregion
+		#region private void RegionizeCodeElement(CodeElement elem)
+		/// <summary>
+		/// </summary>
+		/// <param name="elem"></param>
 		private void RegionizeCodeElement(CodeElement elem) {
 
 			string declaration = GetDeclaration(elem);
@@ -239,7 +304,13 @@ namespace DocumentationVs12AddIn.Commands {
 			//go back to old point
 			MoveToPoint(p);
 		}
-
+		#endregion
+		#region private string GetDeclaration(CodeElement elem)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="elem"></param>
+		/// <returns></returns>
 		private string GetDeclaration(CodeElement elem) {
 			TextSelection sel = (TextSelection)DTE.ActiveWindow.Selection;
 
@@ -281,7 +352,13 @@ namespace DocumentationVs12AddIn.Commands {
 
 			return str;
 		}
-
+		#endregion
+		#region private bool ShouldCodeElementBeRegionized(CodeElement element)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="element"></param>
+		/// <returns></returns>
 		private bool ShouldCodeElementBeRegionized(CodeElement element) {
 			Type type = GetElementType(element);
 			if (object.ReferenceEquals(type, typeof(CodeVariable))) {
@@ -312,7 +389,14 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return true;
 		}
-
+		#endregion
+		#region protected Type GetElementType(CodeElement element)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="element"></param>
+		/// <returns></returns>
+		/// <exception cref="ApplicationException">If unknown element kind .</exception>
 		protected Type GetElementType(CodeElement element) {
 			switch (element.Kind) {
 				case vsCMElement.vsCMElementFunction:
@@ -338,14 +422,15 @@ namespace DocumentationVs12AddIn.Commands {
 				//throw new ApplicationException("Unknown element kind "+element.Kind);
 			}
 		}
-
-		#region "Private Function SetCursorToNodeText(ByVal node As XmlNode)"
+		#endregion
+		#region protected void SetCursorToNodeText(XmlNode node, bool positionLast = false, bool searchForCursorMark = false)
 		/// <summary>
-		///	 Sets the position of the cursor to the supplied node of the xml
+		///  Sets the position of the cursor to the supplied node of the xml
 		/// documentation
 		/// </summary>
-		/// <param name="node" ></param>
-		/// <returns ></returns>
+		/// <param name="node"></param>
+		/// <param name="positionLast"></param>
+		/// <param name="searchForCursorMark"></param>
 		protected void SetCursorToNodeText(XmlNode node, bool positionLast = false, bool searchForCursorMark = false) {
 			var sel = (TextSelection)DTE.ActiveWindow.Selection;
 			bool emptyNode = node.InnerText.Length == 0 | Regex.IsMatch(node.InnerText, "^\\s*$");
@@ -401,10 +486,7 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-		#region "Private Function IsBetween(ByVal p As Point, ByVal startPoint As Point, ByVal endPoint As Point) As Boolean"
-
-		#endregion
-		#region "Private Function CountLineBreaks(ByVal text As String) As Integer"
+		#region private int CountLineBreaks(string text)
 		/// <summary>
 		/// Counts the number of linebreaks in the text
 		/// </summary>
@@ -426,7 +508,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return nr;
 		}
 		#endregion
-		#region "Private Function SaveXMLDocumentation(ByVal xdoc As XmlDocument, ByVal element As CodeElement)"
+		#region protected object SaveXMLDocumentation(XmlDocument xdoc, CodeElement element)
 		/// <summary>
 		/// Saves the supplied xml documentation to the element
 		/// </summary>
@@ -447,13 +529,14 @@ namespace DocumentationVs12AddIn.Commands {
 			return functionReturnValue;
 		}
 		#endregion
-		#region "Private Function GetPropertyInfo(ByVal element As CodeElement, ByVal name As String) As Reflection.PropertyInfo"
+		#region private PropertyInfo GetPropertyInfo(CodeElement element, string name)
 		/// <summary>
 		/// Gets the propertyinfo for the supplied method of the element.
 		/// </summary>
 		/// <param name="element">The <see cref="CodeElement"/> to get the property info from</param>
 		/// <param name="name">The name of the property.</param>
-		/// <returns>The found <see cref="Reflection.PropertyInfo"/> </returns>
+		/// <returns>The found <see cref="Reflection.PropertyInfo"/>
+		/// </returns>
 		private PropertyInfo GetPropertyInfo(CodeElement element, string name) {
 			Type type = GetElementType(element);
 			if (type == null) {
@@ -467,12 +550,12 @@ namespace DocumentationVs12AddIn.Commands {
 			return pInfo;
 		}
 		#endregion
-		#region "Private Function GetXmlDocumentation(ByVal xdoc As XmlDocument) As String"
+		#region private string GetXmlDocumentation(XmlDocument xdoc)
 		/// <summary>
-		///	 Gets the xml from the xml document
+		///  Gets the xml from the xml document
 		/// </summary>
-		/// <param name="xdoc" ></param>
-		/// <returns ></returns>
+		/// <param name="xdoc"></param>
+		/// <returns></returns>
 		private string GetXmlDocumentation(XmlDocument xdoc) {
 			//split some singletags into start and endtags
 			string xml = xdoc.InnerXml;
@@ -483,7 +566,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return xml;
 		}
 		#endregion
-		#region "Private Function FormatBasicXmlDocumentation(ByVal xml As String) As String"
+		#region private string FormatBasicXmlDocumentation(string xml)
 		/// <summary>
 		/// Performs formatting of the supplied doc xml to lines starting with ''' 
 		/// </summary>
@@ -497,15 +580,15 @@ namespace DocumentationVs12AddIn.Commands {
 			return xml;
 		}
 		#endregion
-		#region "Private Function AutoDocumentItem(ByVal elem As CodeElement, ByVal xdoc As XmlDocument, ByVal returnType As CodeTypeRef, ByVal parameters As CodeElements) As XmlNode"
+		#region private XmlNode AutoDocumentItem(CodeElement elem, XmlDocument xdoc)
 		/// <summary>
 		/// Creates documentation for the supplied element
 		/// </summary>
 		/// <param name="elem">The <see cref="CodeElement"/> to document</param>
 		/// <param name="xdoc">The <see cref="XmlDocument"/> containing the documentation</param>
+		/// <returns>The last <see cref="XmlNode"/> of the documentation.</returns>
 		/// <param name="returnType">The return <see cref="CodeTypeRef"/> of the element</param>
 		/// <param name="parameters">The list of <see cref="CodeElements"/> sent as parameters</param>
-		/// <returns>The last <see cref="XmlNode"/> of the documentation.</returns>
 		private XmlNode AutoDocumentItem(CodeElement elem, XmlDocument xdoc) {
 			RemoveEmptyElements(xdoc);
 
@@ -882,6 +965,14 @@ namespace DocumentationVs12AddIn.Commands {
 			return summaryNode;
 		}
 		#endregion
+		#region private XmlNode AutoDocumentExceptions(CodeElement elem, XmlDocument xdoc, XmlNode lastNode)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="elem"></param>
+		/// <param name="xdoc"></param>
+		/// <param name="lastNode"></param>
+		/// <returns></returns>
 		private XmlNode AutoDocumentExceptions(CodeElement elem, XmlDocument xdoc, XmlNode lastNode) {
 			//Add documentation for exceptions.
 			string text = GetElementContent(elem);
@@ -966,14 +1057,15 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return lastNode;
 		}
-		#region "Private Function AddParameters(ByVal xdoc As XmlDocument, ByVal parameters As CodeElements, ByVal lastNode As XmlNode) As XmlNode"
+		#endregion
+		#region private XmlNode AddParameters(XmlDocument xdoc, CodeElements parameters, XmlNode lastNode)
 		/// <summary>
-		///	 Adds the parameters to the xml document.
+		///  Adds the parameters to the xml document.
 		/// </summary>
-		/// <param name="xdoc" >The xml document</param>
-		/// <param name="parameters" >The collection of parameters</param>
-		/// <param name="lastNode" >The node to place the created/found node after</param>
-		/// <returns ></returns>
+		/// <param name="xdoc">The xml document</param>
+		/// <param name="parameters">The collection of parameters</param>
+		/// <param name="lastNode">The node to place the created/found node after</param>
+		/// <returns></returns>
 		private XmlNode AddParameters(XmlDocument xdoc, CodeElements parameters, XmlNode lastNode) {
 			//add parameter nodes
 			foreach (CodeParameter cp in parameters) {
@@ -987,7 +1079,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return lastNode;
 		}
 		#endregion
-		#region "Private Function GetParameterXmlNode(ByVal xdoc As XmlDocument, ByVal name As String) As XmlNode"
+		#region private XmlNode GetParameterXmlNode(XmlDocument xdoc, string name)
 		/// <summary>
 		/// Gets the node containing the supplied parameter documentation
 		/// </summary>
@@ -998,11 +1090,12 @@ namespace DocumentationVs12AddIn.Commands {
 			return EnsureNode(xdoc, "/doc/param[@name='" + name + "']");
 		}
 		#endregion
-		#region "Private Function RemoveEmptyElements(ByVal xdoc As XmlDocument)"
+		#region private object RemoveEmptyElements(XmlDocument xdoc)
 		/// <summary>
 		/// Removes all empty child elements from the /doc element
 		/// </summary>
 		/// <param name="xdoc">The xml document</param>
+		/// <returns></returns>
 		private object RemoveEmptyElements(XmlDocument xdoc) {
 			object functionReturnValue = null;
 			XmlNode rootNode = xdoc.SelectSingleNode("/doc");
@@ -1025,14 +1118,14 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-		#region "Private Function AddReturnValue(ByVal xdoc As XmlDocument, ByVal type As CodeTypeRef, ByVal lastNode As XmlNode) As XmlNode"
+		#region private XmlNode AddReturnValue(XmlDocument xdoc, CodeTypeRef type, XmlNode lastNode)
 		/// <summary>
-		///	 Adds the returnvalue parameter to the xmldocument
+		///  Adds the returnvalue parameter to the xmldocument
 		/// </summary>
-		/// <param name="xdoc" >The xml document</param>
-		/// <param name="type" >The type of returnvalue</param>
-		/// <param name="lastNode" >The node to place the created/found node after</param>
-		/// <returns ></returns>
+		/// <param name="xdoc">The xml document</param>
+		/// <param name="type">The type of returnvalue</param>
+		/// <param name="lastNode">The node to place the created/found node after</param>
+		/// <returns></returns>
 		private XmlNode AddReturnValue(XmlDocument xdoc, CodeTypeRef type, XmlNode lastNode) {
 			//add returnvalue node if return type is not null
 			if (type.TypeKind != vsCMTypeRef.vsCMTypeRefVoid) {
@@ -1041,7 +1134,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return lastNode;
 		}
 		#endregion
-		#region "Private Function AddXMLDocNode(ByVal xdoc As XmlDocument, ByVal name As String, ByVal lastNode As XmlNode) As XmlNode"
+		#region private XmlNode AddXMLDocNode(XmlDocument xdoc, string name, XmlNode lastNode)
 		/// <summary>
 		/// Adds the supplied xml doc node after the supplied lastNode. 
 		/// if the node already exists it is placed after the supplied lastNode.
@@ -1061,12 +1154,13 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-		#region "Private Function PrepareXMLDocumentation(ByVal element As CodeElement) As XmlDocument"
+		#region protected XmlDocument PrepareXMLDocumentation(CodeElement element)
 		/// <summary>
 		/// Prepares the XML documentation for the supplied element
 		/// </summary>
 		/// <param name="element">The <see cref="CodeElement"/> prepare</param>
-		/// <returns>The prepared <see cref="XmlDocument"/> </returns>
+		/// <returns>The prepared <see cref="XmlDocument"/>
+		/// </returns>
 		protected XmlDocument PrepareXMLDocumentation(CodeElement element) {
 			System.Reflection.PropertyInfo pInfo = GetPropertyInfo(element, "DocComment");
 			if (pInfo == null) {
@@ -1096,15 +1190,15 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-		#region "Private Function EnsureNode(ByVal xdoc As XmlDocument, ByVal path As String, Optional ByVal defaultValue As String = "", Optional ByVal firstNode As Boolean = False) As XmlNode"
+		#region protected XmlNode EnsureNode(XmlDocument xdoc, string path, string defaultValue = "", bool firstNode = false)
 		/// <summary>
 		/// Makes sure that the supplied node exists in the document
 		/// </summary>
-		/// <param name="xdoc" ></param>
-		/// <param name="path" ></param>
-		/// <param name="defaultValue" ></param>
-		/// <param name="firstNode" ></param>
-		/// <returns ></returns>
+		/// <param name="xdoc"></param>
+		/// <param name="path"></param>
+		/// <param name="defaultValue"></param>
+		/// <param name="firstNode"></param>
+		/// <returns></returns>
 		protected XmlNode EnsureNode(XmlDocument xdoc, string path, string defaultValue = "", bool firstNode = false) {
 			XmlNode node = CreateElement(xdoc, path);
 
@@ -1122,6 +1216,13 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
+		#region private bool HasNode(XmlDocument xdoc, string path)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="xdoc"></param>
+		/// <param name="path"></param>
+		/// <returns></returns>
 		private bool HasNode(XmlDocument xdoc, string path) {
 			XmlNode node = CreateElement(xdoc, path, false);
 			if (node == null) {
@@ -1129,13 +1230,14 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return true;
 		}
-		#region "Private Function SwapNodes(ByVal xdoc As XmlDocument, ByVal n1 As XmlNode, ByVal n2 As XmlNode)"
+		#endregion
+		#region private object SwapNodes(XmlNode n1, XmlNode n2)
 		/// <summary>
-		///	 swaps two nodes places. Will only work if the nodes have the same parent.
+		///  swaps two nodes places. Will only work if the nodes have the same parent.
 		/// </summary>
-		/// <param name="n1" ></param>
-		/// <param name="n2" ></param>
-		/// <returns ></returns>
+		/// <param name="n1"></param>
+		/// <param name="n2"></param>
+		/// <returns></returns>
 		private object SwapNodes(XmlNode n1, XmlNode n2) {
 			object functionReturnValue = null;
 			if ((!object.ReferenceEquals(n1.ParentNode, n2.ParentNode))) {
@@ -1151,6 +1253,12 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
+		#region private CodeElement GetParent(CodeElement elem)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="elem"></param>
+		/// <returns></returns>
 		private CodeElement GetParent(CodeElement elem) {
 			var cm = elem as CodeFunction;
 			if (cm != null)
@@ -1199,6 +1307,13 @@ namespace DocumentationVs12AddIn.Commands {
 				return ctr.Parent as CodeElement;
 			return null;
 		}
+		#endregion
+		#region private string GetParentFullName(CodeElement elem)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="elem"></param>
+		/// <returns></returns>
 		private string GetParentFullName(CodeElement elem) {
 			try {
 				var parent = GetParent(elem);
@@ -1210,7 +1325,8 @@ namespace DocumentationVs12AddIn.Commands {
 			return elem.FullName.Substring(1, elem.FullName.LastIndexOf(".", System.StringComparison.Ordinal) - 1);
 
 		}
-		#region "Private Function GetDocumentationElement() As CodeElement"
+		#endregion
+		#region private CodeElement GetDocumentationElement()
 		/// <summary>
 		/// Gets the element that contains the documentation.
 		/// </summary>
@@ -1257,8 +1373,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return element1;
 		}
 		#endregion
-		
-		#region "Private Function GetHtmlTagType(ByVal type As String, ByVal tag As String) As String"
+		#region private string GetHtmlTagType(string type, string tag)
 		/// <summary>
 		/// Gets a html tag with the supplied type as content
 		/// </summary>
@@ -1273,22 +1388,22 @@ namespace DocumentationVs12AddIn.Commands {
 			return "<" + tag + ">" + type + "</" + tag + ">";
 		}
 		#endregion
-		
-		#region "Private Function HTMLEncodeText(ByVal text As String) As String"
+		#region private string HTMLEncodeText(string text)
 		/// <summary>
 		/// Encodes the supplied text to html
 		/// </summary>
 		/// <param name="text">The <see cref="String"/>  to encode</param>
-		/// <returns>The encoded <see cref="String"/> </returns>
+		/// <returns>The encoded <see cref="String"/>
+		/// </returns>
 		private string HTMLEncodeText(string text) {
 			text = Regex.Replace(text, "&", "&amp;", RegexOptions.None);
 			text = Regex.Replace(text, "<", "&lt;", RegexOptions.None);
 			text = Regex.Replace(text, ">", "&gt;", RegexOptions.None);
 			text = Regex.Replace(text, "\"", "&quot;", RegexOptions.None);
-			return text; 
+			return text;
 		}
 		#endregion
-		#region "Private Function IsMethodsName(ByVal text As String, ByVal name As String) As Boolean"
+		#region private bool IsMethodsName(string text, string name)
 		/// <summary>
 		/// Checks if the supplied text contains a method name of the supplied name. (inlcuding explicit interface member names)
 		/// </summary>
@@ -1299,7 +1414,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return Regex.IsMatch(text, "(?:\\w+\\.)?" + name);
 		}
 		#endregion
-		#region "Private Function SplitOnPascalCasing(ByVal text As String) As String()"
+		#region private string[] SplitOnPascalCasing(string text)
 		/// <summary>
 		/// Splits a string on pascal casing
 		/// </summary>
@@ -1318,7 +1433,7 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-		#region "Private Function IsTypeNamed(ByVal type As CodeTypeRef, ByVal name As String) As Boolean"
+		#region private bool IsTypeNamed(CodeTypeRef type, string name)
 		/// <summary>
 		/// Checks if the supplied type has the supplied name
 		/// </summary>
@@ -1344,21 +1459,30 @@ namespace DocumentationVs12AddIn.Commands {
 			return name.Equals(type.AsString);
 		}
 		#endregion
-
+		#region private string GetElementContent(CodeElement elem)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="elem"></param>
+		/// <returns></returns>
 		private string GetElementContent(CodeElement elem) {
 			TextSelection sel = (TextSelection)DTE.ActiveWindow.Document.Selection;
 			sel.MoveToPoint(elem.StartPoint);
 			sel.MoveToPoint(elem.EndPoint, true);
 			return sel.Text;
 		}
-		#region "Private Function CreateElement(ByVal doc As XmlDocument, ByVal elementPath As String) As XmlNode"
+		#endregion
+		#region private XmlNode CreateElement(XmlDocument doc, string elementPath, bool create = true)
 		/// <summary>
 		/// Creates an element at the supplied path. If the parent elements doesn't exists, they are created aswell.
 		/// If the element already exists, it will be returned.
 		/// </summary>
 		/// <param name="doc">The document that the element should be created in</param>
 		/// <param name="elementPath">The absolute path to the element</param>
+		/// <param name="create"></param>
 		/// <returns>The created (or found) node</returns>
+		/// <exception cref="ArgumentNullException">If <paramref name="elementPath"/> is null.</exception>
+		/// <exception cref="ArgumentException">If the elementpath doesn't support condition .</exception>
 		private XmlNode CreateElement(XmlDocument doc, string elementPath, bool create = true) {
 			if (elementPath == null) {
 				throw new ArgumentNullException("elementPath");
@@ -1441,20 +1565,24 @@ namespace DocumentationVs12AddIn.Commands {
 			return lastNode;
 		}
 		#endregion
-		#region "Private Function SetAttribute(ByVal node As XmlNode, ByVal attrName As String, ByVal attrValue As String)"
+		#region private void SetAttribute(XmlNode node, string attrName, string attrValue)
 		/// <summary>
 		/// Sets an attribute value in the the supplied node
 		/// </summary>
 		/// <param name="node">The node to create the attribute in</param>
 		/// <param name="attrName">The name of the attribute</param>
 		/// <param name="attrValue">The value of the attribute</param>
-		/// <returns></returns>
 		private void SetAttribute(XmlNode node, string attrName, string attrValue) {
 			XmlAttribute newAttributeNode = node.OwnerDocument.CreateAttribute(attrName);
 			newAttributeNode.Value = attrValue;
 			node.Attributes.SetNamedItem(newAttributeNode);
 		}
 		#endregion
+		#region private void DocumentAndRegionizeHtml(bool regionize)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="regionize"></param>
 		private void DocumentAndRegionizeHtml(bool regionize) {
 			Point p = GetPoint();
 
@@ -1467,46 +1595,6 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 
 		}
-
-		/// <summary>
-		/// Enters a remark on the format yyyy-MM-dd, domain/user:
-		/// </summary>
-		[Command("Text Editor::Ctrl+Shift+Alt+c")]
-		public void EnterCodeRemark() {
-			CodeElement element1 = DocumentAndRegionize(false);
-			if (element1 == null) {
-				return;
-			}
-			TextSelection selection1 = (TextSelection)DTE.ActiveWindow.Document.Selection;
-			Point startPoint = GetPoint(selection1.ActivePoint);
-
-			Type type = GetElementType(element1);
-			if (type == null) {
-				return;
-			}
-
-
-			try {
-				XmlDocument xdoc = PrepareXMLDocumentation(element1);
-				if (xdoc == null) {
-					MoveToPoint(startPoint);
-					return;
-				}
-				EnsureNode(xdoc, "/doc/summary", " ", true);
-				XmlNode remarksNode = EnsureNode(xdoc, "/doc/remarks");
-				//Dim remarksNode As XmlNode = CreateElement(xdoc, "/doc/remarks")
-				remarksNode.InnerXml += Environment.NewLine + "<para>" + DateTime.Now.ToString("yyyy-MM-dd") + ", " + Environment.UserDomainName + "\\" + Environment.UserName + ": |</para>";
-				SaveXMLDocumentation(xdoc, element1);
-				SetCursorToNodeText(remarksNode, true, true);
-
-			} catch (Exception exception1) {
-				//if anything goes wrong, return to old position
-				MoveToPoint(startPoint);
-				element1 = null;
-				MessageBox.Show(exception1.Message, "Documentator", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-
-			}
-
-		}
+		#endregion
 	}
 }
