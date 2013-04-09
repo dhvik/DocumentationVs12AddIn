@@ -10,30 +10,35 @@ namespace DocumentationVs12AddIn.Commands {
 	/// 2013-04-09 dan: Created
 	/// </remarks>
 	public class SortLinesCommands : CommandBase {
-		#region "Sub SortLinesAscending()"
-		///<summary>
-		///Sorts the selected lines in ascending order
-		///</summary>
+		/* *******************************************************************
+		 *  Commands
+		 * *******************************************************************/
+		#region public void SortLinesAscending()
+		/// <summary>
+		/// Sorts the selected lines in ascending order
+		/// </summary>
 		[Command("Text Editor::Ctrl+Alt+s")]
 		public void SortLinesAscending() {
 			SortLines();
 		}
 		#endregion
-		#region "Sub SortLinesDescending()"
-		///<summary>
-		///Sorts the selected lines in descending order
-		///</summary>
+		#region public void SortLinesDescending()
+		/// <summary>
+		/// Sorts the selected lines in descending order
+		/// </summary>
 		[Command("Text Editor::Ctrl+Shift+Alt+s")]
 		public void SortLinesDescending() {
 			SortLines(true);
 		}
 		#endregion
-		#region "Private Function SortLines(Optional ByVal reverse As Boolean = False)"
+		/* *******************************************************************
+		 *  Private methods
+		 * *******************************************************************/
+		#region private void SortLines(bool reverse = false)
 		/// <summary>
 		/// Sorts the selected lines
 		/// </summary>
-		/// <param name="reverse" ></param>
-		/// <returns ></returns>
+		/// <param name="reverse"></param>
 		private void SortLines(bool reverse = false) {
 			TextSelection sel = FixSelection();
 			dynamic text = sel.Text.Substring(0, sel.Text.Length - 2);

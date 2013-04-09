@@ -15,7 +15,13 @@ namespace DocumentationVs12AddIn.Commands {
 	public class MiscCommands:CommandBase {
 		private Dictionary<string,string> ExtractAttributesList;
 
-	
+		/* *******************************************************************
+		 *  Commands
+		 * *******************************************************************/
+		#region public void KillLine()
+		/// <summary>
+		/// 
+		/// </summary>
 		[Command("Text Editor::Ctrl+Shift+k")]
 		public void KillLine() {
 			if (Selection == null)
@@ -24,19 +30,20 @@ namespace DocumentationVs12AddIn.Commands {
 			Selection.EndOfLine(true);
 			Selection.Delete();
 		}
+		#endregion
+		#region public void CreateDocumentationHeading()
 		/// <summary>
-		///	 Creates a documentation Heading for the current line
+		///  Creates a documentation Heading for the current line
 		/// </summary>
 		[Command("Text Editor::Ctrl+Shift+Alt+h")]
 		public void CreateDocumentationHeading() {
-			TextSelection sel = Selection;
-			Point p = GetPoint();
+			var sel = Selection;
+			var p = GetPoint();
 			sel.SelectLine();
-			string text = sel.Text;
-			string indent = null;
+			var text = sel.Text;
 			Match m = Regex.Match(text, "^(\\s*)(.*?)\\s*$");
 			if (m.Success) {
-				indent = m.Groups[1].Value;
+				string indent = m.Groups[1].Value;
 				text = m.Groups[2].Value;
 
 				string data = "";
@@ -57,7 +64,8 @@ namespace DocumentationVs12AddIn.Commands {
 				MoveToPoint(p);
 			}
 		}
-		#region "Sub PasteSeeParameterXmlDocTag()"
+		#endregion
+		#region public void PasteSeeParameterXmlDocTag()
 		/// <summary>
 		/// Pastes the See parameter xml document tag in the current documentation section
 		/// </summary>
@@ -66,7 +74,7 @@ namespace DocumentationVs12AddIn.Commands {
 			PasteSeeXmlDocParamTag();
 		}
 		#endregion
-		#region "Sub MakeCData()"
+		#region public void MakeCData()
 		/// <summary>
 		/// Makes the selected text CData and adds pre tags around it.
 		/// </summary>
@@ -75,7 +83,7 @@ namespace DocumentationVs12AddIn.Commands {
 				return;
 			}
 
-			TextSelection sel = (TextSelection)DTE.ActiveWindow.Document.Selection;
+			TextSelection sel = Selection;
 			string text = sel.Text;
 			//text = Regex.Replace(text, "&", "&amp;", RegexOptions.None)
 			//text = Regex.Replace(text, "<", "&lt;", RegexOptions.None)
@@ -85,7 +93,7 @@ namespace DocumentationVs12AddIn.Commands {
 			sel.Insert("<pre><![CDATA[" + text + "]]></pre>");
 		}
 		#endregion
-		#region "Sub FixHtmlValidationErrors()"
+		#region public void FixHtmlValidationErrors()
 		/// <summary>
 		/// Fixes some HTML validation errors.
 		/// </summary>
@@ -172,7 +180,7 @@ namespace DocumentationVs12AddIn.Commands {
 			//MakeHTMLTagLowercase("DIV")
 		}
 		#endregion
-		#region "Sub EnterCodeComment()"
+		#region public void EnterCodeComment()
 		/// <summary>
 		/// Enters a comment on the format yyyy-MM-dd, domain/user: 
 		/// </summary>
@@ -204,9 +212,9 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-		#region "Sub FormatCurrentDocument()"
+		#region public void FormatCurrentDocument()
 		/// <summary>
-		///	 Formats the whole document
+		///  Formats the whole document
 		/// </summary>
 		[Command("Text Editor::Ctrl+Shift+d")]
 		public void FormatCurrentDocument() {
@@ -222,9 +230,9 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-		#region "Sub ActOnTab()"
+		#region public void ActOnTab()
 		/// <summary>
-		///	 Acts on the tab key press
+		///  Acts on the tab key press
 		/// </summary>
 		[Command("Text Editor::Ctrl+<")]
 		public void ActOnTab() {
@@ -245,9 +253,9 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-		#region "Sub ActOnShiftTab()"
+		#region public void ActOnShiftTab()
 		/// <summary>
-		///	 Acts on Shift tab key press
+		///  Acts on Shift tab key press
 		/// </summary>
 		[Command("Text Editor::Ctrl+Shift+>")]
 		public void ActOnShiftTab() {
@@ -274,13 +282,15 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-
-		#region "Function MoveToXmlDocTagSimple(Optional ByVal forward As Boolean = True) As Boolean"
+		/* *******************************************************************
+		 *  private methods
+		 * *******************************************************************/
+		#region private bool MoveToXmlDocTagSimple(bool forward = true)
 		/// <summary>
-		///	 Moves the cursor to the next/previos xml doc comment tag
+		///  Moves the cursor to the next/previos xml doc comment tag
 		/// </summary>
-		/// <param name="forward" >Should we go to the next, set to true. Go to previous, set to false.</param>
-		/// <returns >True if we are in an XML doc tag, false otherwize</returns>
+		/// <param name="forward">Should we go to the next, set to true. Go to previous, set to false.</param>
+		/// <returns>True if we are in an XML doc tag, false otherwize</returns>
 		private bool MoveToXmlDocTagSimple(bool forward = true) {
 			Point p = GetPoint();
 			TextSelection sel = (TextSelection)DTE.ActiveWindow.Document.Selection;
@@ -291,7 +301,7 @@ namespace DocumentationVs12AddIn.Commands {
 				documentationPattern = "'''";
 			}
 
-			if (sel.FindPattern("^[ \\t]*" + documentationPattern, (int) vsFindOptions.vsFindOptionsRegularExpression)) {
+			if (sel.FindPattern("^[ \\t]*" + documentationPattern, (int)vsFindOptions.vsFindOptionsRegularExpression)) {
 				sel.Collapse();
 				Point p2 = GetPoint();
 				//if we is positioned before the /// or if /// is on another line, skip it
@@ -301,7 +311,7 @@ namespace DocumentationVs12AddIn.Commands {
 				}
 				MoveToPoint(p);
 				if (forward) {
-					if (sel.FindPattern("\\<[^/\\>]+\\>", (int) vsFindOptions.vsFindOptionsRegularExpression)) {
+					if (sel.FindPattern("\\<[^/\\>]+\\>", (int)vsFindOptions.vsFindOptionsRegularExpression)) {
 						if (sel.ActivePoint.EqualTo(sel.TopPoint)) {
 							sel.SwapAnchor();
 						}
@@ -310,7 +320,7 @@ namespace DocumentationVs12AddIn.Commands {
 						//if the start tag is alone at the end of the line, try to find the next line
 						sel.EndOfLine(true);
 						if (Regex.IsMatch(sel.Text, "^\\s*$")) {
-							if (sel.FindPattern(documentationPattern + " *", (int) vsFindOptions.vsFindOptionsRegularExpression)) {
+							if (sel.FindPattern(documentationPattern + " *", (int)vsFindOptions.vsFindOptionsRegularExpression)) {
 								sel.Collapse();
 								return true;
 							}
@@ -320,10 +330,10 @@ namespace DocumentationVs12AddIn.Commands {
 					}
 				} else {
 					//skip current tag
-					sel.FindPattern("\\<\\/[^/\\>]+\\>", (int) (vsFindOptions.vsFindOptionsRegularExpression + (int) vsFindOptions.vsFindOptionsBackwards));
+					sel.FindPattern("\\<\\/[^/\\>]+\\>", (int)(vsFindOptions.vsFindOptionsRegularExpression + (int)vsFindOptions.vsFindOptionsBackwards));
 					sel.Collapse();
 
-					if (sel.FindPattern("\\<[^/\\>]+\\>", (int) (vsFindOptions.vsFindOptionsRegularExpression + (int) vsFindOptions.vsFindOptionsBackwards))) {
+					if (sel.FindPattern("\\<[^/\\>]+\\>", (int)(vsFindOptions.vsFindOptionsRegularExpression + (int)vsFindOptions.vsFindOptionsBackwards))) {
 						if (sel.ActivePoint.EqualTo(sel.TopPoint)) {
 							sel.SwapAnchor();
 						}
@@ -332,7 +342,7 @@ namespace DocumentationVs12AddIn.Commands {
 						//if the start tag is alone at the end of the line, try to find the next line
 						sel.EndOfLine(true);
 						if (Regex.IsMatch(sel.Text, "^\\s*$")) {
-							if (sel.FindPattern(documentationPattern + " *", (int) vsFindOptions.vsFindOptionsRegularExpression)) {
+							if (sel.FindPattern(documentationPattern + " *", (int)vsFindOptions.vsFindOptionsRegularExpression)) {
 								sel.Collapse();
 								return true;
 							}
@@ -350,7 +360,7 @@ namespace DocumentationVs12AddIn.Commands {
 
 		}
 		#endregion
-		#region "Private Function AssertEndElement(ByVal text As String, ByVal elem As String, ByVal parentElements As String()) As String"
+		#region private string AssertEndElement(string text, string elem, string[] parentElements)
 		/// <summary>
 		/// Makes sure that the found elements with the supplied name has an end tag
 		/// </summary>
@@ -396,7 +406,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return newText;
 		}
 		#endregion
-		#region "Private Function EnsureAttribute(ByVal text As String, ByVal tagName As String, ByVal attribute As String, ByVal value As String) As String"
+		#region private string EnsureAttribute(string text, string tagName, string attribute, string value, string valueFromAttribute = null)
 		/// <summary>
 		/// Searches for tags and adds an attribute if they don't have them
 		/// </summary>
@@ -404,6 +414,7 @@ namespace DocumentationVs12AddIn.Commands {
 		/// <param name="tagName">The name of the tag to search for</param>
 		/// <param name="attribute">The name of the attribute to ensure</param>
 		/// <param name="value">The value of the attribute to use if no attribute is found</param>
+		/// <param name="valueFromAttribute"></param>
 		/// <returns>The replaced text</returns>
 		private string EnsureAttribute(string text, string tagName, string attribute, string value, string valueFromAttribute = null) {
 			MatchCollection ms = Regex.Matches(text, "<" + tagName + "([^>]*)>", RegexOptions.IgnoreCase);
@@ -427,14 +438,14 @@ namespace DocumentationVs12AddIn.Commands {
 			return text;
 		}
 		#endregion
-		#region "Private Function BuildTag(ByVal tag As String, ByVal attr As Hashtable) As String"
+		#region private string BuildTag(string tag, Dictionary<string,string> attr)
 		/// <summary>
 		/// Builds a start tag from a name and a set of attributes
 		/// </summary>
 		/// <param name="tag">The name of the tag</param>
 		/// <param name="attr">The attributes of the tag</param>
 		/// <returns>The built tag</returns>
-		private string BuildTag(string tag, Dictionary<string,string> attr) {
+		private string BuildTag(string tag, Dictionary<string, string> attr) {
 			string t = null;
 			t = "<" + tag;
 			foreach (string key in attr.Keys) {
@@ -449,7 +460,7 @@ namespace DocumentationVs12AddIn.Commands {
 			return t;
 		}
 		#endregion
-		#region "Private Function ExtractAttributesMatchEvaluator(ByVal m As Match) As String"
+		#region private string ExtractAttributesMatchEvaluator(Match m)
 		/// <summary>
 		/// Extracts attributes from the text and adds the found key/value pair to the ExtractAttributesList
 		/// </summary>
@@ -471,13 +482,13 @@ namespace DocumentationVs12AddIn.Commands {
 			return "";
 		}
 		#endregion
-		#region "Private Function ExtractAttributes(ByVal tag As String) As Hashtable"
+		#region private Dictionary<string,string> ExtractAttributes(string tag)
 		/// <summary>
 		/// Finds all attribute key/value pairs in the supplied tag.
 		/// </summary>
 		/// <param name="tag">The complete tag to parse</param>
 		/// <returns>A <see cref="Hashtable"/> containing the found attributes</returns>
-		private Dictionary<string,string> ExtractAttributes(string tag) {
+		private Dictionary<string, string> ExtractAttributes(string tag) {
 			if (ExtractAttributesList == null) {
 				ExtractAttributesList = new Dictionary<string, string>();
 			} else {
@@ -496,14 +507,15 @@ namespace DocumentationVs12AddIn.Commands {
 			return ExtractAttributesList;
 		}
 		#endregion
-		#region "Private Function FixAttributesMatchEvaluator(ByVal m As Match) As String"
+		#region private string FixAttributesMatchEvaluator(Match m)
 		/// <summary>
 		/// When this is called on an attribute match where the name and value are divided in two matching groups
 		/// this will replace the attribute with a lowercase name and quote the value if not already quoted.
 		/// </summary>
 		/// <param name="m">The Match containing the attribute</param>
 		/// <returns>The match replacement</returns>
-		private  string FixAttributesMatchEvaluator(Match m) {
+		/// <exception cref="ArgumentException">If can't process input, should only be two groups.</exception>
+		private string FixAttributesMatchEvaluator(Match m) {
 			if (m.Groups.Count == 1) {
 				return m.Groups[0].Value.ToLower();
 			}
@@ -541,12 +553,13 @@ namespace DocumentationVs12AddIn.Commands {
 			throw new ArgumentException("Can't process input, should only be two groups");
 		}
 		#endregion
-		#region "Private Function ParseAttribute(ByVal att As String) As KeyValuePair(Of String, String)"
+		#region private KeyValuePair<string, string> ParseAttribute(string att)
 		/// <summary>
 		/// Parses an attribute key/value pair
 		/// </summary>
 		/// <param name="att">The text to parse</param>
 		/// <returns>The found <see cref="KeyValuePair{string,string}"/> or nothing if no attribute was found</returns>
+		/// <exception cref="ArgumentException">If more than one attribute was found.</exception>
 		private KeyValuePair<string, string> ParseAttribute(string att) {
 			KeyValuePair<string, string> kv = default(KeyValuePair<string, string>);
 			var ht = ExtractAttributes(att);

@@ -13,17 +13,17 @@ namespace DocumentationVs12AddIn.Commands {
 	/// 2013-04-09 dan: Created
 	/// </remarks>
 	public class PasteTemplateCommand :CommandBase {
-		#region "Sub PasteTemplate()"
-		///<summary>
-		///Creates a template insertion by the written keyword
-		///</summary>
-		///<remarks>
-		///Currently the following keywords is defined
-		/// fori writes a for(int i=0;i<|.Count;i++) {... template
-		/// tryc writes a try catch template
-		/// trycf writes a try catch finally template
-		/// tryf writes a try finally template
-		///</remarks>
+		#region public void PasteTemplate()
+		/// <summary>
+		/// Creates a template insertion by the written keyword
+		/// </summary>
+		/// <remarks>
+		/// Currently the following keywords is defined
+		///  fori writes a <c><![CDATA[for(int i=0;i<|.Count;i++) {...]]></c> template
+		///  tryc writes a try catch template
+		///  trycf writes a try catch finally template
+		///  tryf writes a try finally template
+		/// </remarks>
 		[Command("Text Editor::Ctrl+Shift+j")]
 		public void PasteTemplate() {
 			if ((DTE.ActiveWindow.Type != vsWindowType.vsWindowTypeDocument)) {
@@ -33,7 +33,7 @@ namespace DocumentationVs12AddIn.Commands {
 				return;
 			}
 
-			TextSelection sel = (TextSelection)DTE.ActiveWindow.Selection;
+			TextSelection sel = Selection;
 
 			//get templateName
 			string templateName = CutLeftWord();

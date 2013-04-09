@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 using EnvDTE;
 
@@ -16,8 +14,14 @@ namespace DocumentationVs12AddIn.Commands {
 
 		private bool _lastCollapsedAllRegionsNotCompleted;
 
-
-		[Command("Text Editor::Ctrl+Shift++")] 
+		/* *******************************************************************
+		 *  Commands
+		 * *******************************************************************/
+		#region public void ExpandAllRegions()
+		/// <summary>
+		/// 
+		/// </summary>
+		[Command("Text Editor::Ctrl+Shift++")]
 		public void ExpandAllRegions() {
 			if (IsHtml) {
 				DTE.ExecuteCommand("Edit.StopOutlining");
@@ -28,7 +32,140 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 
 		}
+		#endregion
+		#region public void CollapseAllRegions()
+		/// <summary>
+		/// 
+		/// </summary>
+		[Command("Text Editor::Ctrl+Shift+-")]
+		public void CollapseAllRegions() {
+			Log.Debug("CollapseAllRegions start");
+			//find point to go to when operation is done.
+			var p = GetPoint();
+			var sel = Selection;
+			//move to end of line incase we are standing in the middle of a region directive.
+			//Fix supplied by DragonWang_SFIS
+			sel.EndOfLine();
+			//Try
+			try {
+				//	'DTE.SuppressUI = True
 
+				if (!_lastCollapsedAllRegionsNotCompleted) {
+					Log.Debug("Start to exit all nested region blocks");
+					//Loop until you have exited all nested region blocks. 
+					bool done;
+					do {
+						Log.Debug("Loop at "+GetPoint());
+						done = true;
+						//if inside region, move to start of region
+						if (!sel.FindPattern("#region", (int) vsFindOptions.vsFindOptionsBackwards)) {
+							Log.Debug("Cannot find #region");
+							continue;
+						}
+						sel.StartOfLine();
+						sel.Collapse();
+						var p2 = GetPoint();
+						if (!sel.FindPattern("#endregion")) {
+							Log.Debug("Cannot find #endregion");
+							continue;
+						}
+
+						var p3 = GetPoint();
+						//are we inside a region block?
+						if (p2.Y > p3.Y) {
+							Log.Debug("p2.Y>p3.Y: "+p2+","+p3);
+							continue;
+						}
+						p = p2;
+						//Move to start of region
+						MoveToPoint(p2);
+						//and redo the search
+						done = false;
+					} while (!done);
+					Log.Debug("Expand all regions");
+					ExpandAllRegions();
+					//To collapse nested regions, we need to iterate region blocks from the end of the
+					//file and move upwards.
+					//Fix supplied by DragonWang_SFIS
+					sel.EndOfDocument();
+					_lastCollapsedAllRegionsNotCompleted = true;
+				}
+				//2006-05-30 Fixed ignoring commented regions.
+				//while (sel.FindPattern("^:b*/*\\#region",(int)(vsFindOptions.vsFindOptionsBackwards + (int) vsFindOptions.vsFindOptionsRegularExpression))) {
+				//vs 2012 uses normal regexp expressions
+				Log.Debug("Start Toggling");
+				while (sel.FindPattern(@"^\s*/*\#region", (int)(vsFindOptions.vsFindOptionsBackwards + (int)vsFindOptions.vsFindOptionsRegularExpression))) {
+					sel.StartOfLine();
+					Log.Debug("Toggle at " + GetPoint());
+					DTE.ExecuteCommand("Edit.ToggleOutliningExpansion");
+					//		'Try
+					//		'    '2006-10-26 , Dan Händevik; if region is a commented one /* */ then we would collapse the closest overlying region.
+					//		'    'make sure that we are on the start line of the collapsed line...	
+					//		'    '   sel.StartOfLine(vsStartOfLineOptions.vsStartOfLineOptionsFirstColumn)
+					//		'Catch ex As Exception
+					//		'    System.Threading.Thread.Sleep(1000)
+					//		'    sel = DTE.ActiveDocument.Selection
+					//		'    '   sel.StartOfLine(vsStartOfLineOptions.vsStartOfLineOptionsFirstColumn)
+					//		'End Try
+
+				}
+				Log.Debug("Restore old cursor point");
+				//restore old point
+				MoveToPoint(p);
+				_lastCollapsedAllRegionsNotCompleted = false;
+			} catch (Exception) {
+				MessageBox.Show(
+					string.Format("Visual Studio threw an exception so CollapseAllRegions couldn't complete.{0}Please run this macro again to continue the function.", Environment.NewLine), "Macro couldn't complete, try again!");
+				//MessageBox.Show(objE.Message + Environment.NewLine + objE.StackTrace, "Failed to collapse region")
+			}
+			Log.Debug("CollapseAllRegions done");
+		}
+		#endregion
+		#region public void ToggleParentRegion()
+		/// <summary>
+		/// 
+		/// </summary>
+		[Command("Text Editor::Ctrl+m,Ctrl+m")]
+		public void ToggleParentRegion() {
+			//Dim objSelection As TextSelection
+			var objSelection = (TextSelection)DTE.ActiveDocument.Selection;
+			var point = GetPoint();
+			objSelection.EndOfLine();
+			var endLine = objSelection.ActivePoint.Line;
+			objSelection.LineUp();
+
+			//is the selected line a collapsed outline region?
+			if (endLine - 1 != objSelection.ActivePoint.Line) {
+				MoveToPoint(point);
+				DTE.ExecuteCommand("Edit.ToggleOutliningExpansion");
+			} else {
+				MoveToPoint(point);
+				objSelection.SelectLine();
+				if (objSelection.Text.ToLower().Contains("#region")) {
+					//Updated 14.08.2003
+					MoveToPoint(point);
+					DTE.ExecuteCommand("Edit.ToggleOutliningExpansion");
+					Selection.StartOfLine();
+
+				} else if (objSelection.FindText("#region", (int)vsFindOptions.vsFindOptionsBackwards)) {
+
+					Selection.StartOfLine();
+					DTE.ExecuteCommand("Edit.ToggleOutliningExpansion");
+					Selection.StartOfLine();
+				} else {
+					MoveToPoint(point);
+				}
+
+			}
+		}
+		#endregion
+		/* *******************************************************************
+		 *  Private methods
+		 * *******************************************************************/
+		#region private void OutlineRegions()
+		/// <summary>
+		/// 
+		/// </summary>
 		private void OutlineRegions() {
 			//var selection = (TextSelection)DTE.ActiveDocument.Selection;
 
@@ -67,7 +204,14 @@ namespace DocumentationVs12AddIn.Commands {
 			Selection.StartOfDocument();
 
 		}
-
+		#endregion
+		#region private int CalcLineNumber(string text, int index)
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="text"></param>
+		/// <param name="index"></param>
+		/// <returns></returns>
 		private int CalcLineNumber(string text, int index) {
 			var lineNumber = 1;
 			var i = 0;
@@ -81,111 +225,6 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return lineNumber;
 		}
-
-
-
-		[Command("Text Editor::Ctrl+Shift+-")]
-		public void CollapseAllRegions() {
-			//find point to go to when operation is done.
-			var p = GetPoint();
-			var sel = Selection;
-			//move to end of line incase we are standing in the middle of a region directive.
-			//Fix supplied by DragonWang_SFIS
-			sel.EndOfLine();
-			//Try
-			try {
-				//	'DTE.SuppressUI = True
-
-				if (!_lastCollapsedAllRegionsNotCompleted) {
-					//Loop until you have exited all nested region blocks. 
-					bool done;
-					do {
-						done = true;
-						//if inside region, move to start of region
-						if (!sel.FindPattern("#region", (int) vsFindOptions.vsFindOptionsBackwards)) 
-							continue;
-						sel.StartOfLine();
-						sel.Collapse();
-						var p2 = GetPoint();
-						if (!sel.FindPattern("#endregion")) 
-							continue;
-						var p3 = GetPoint();
-						//are we inside a region block?
-						if (p2.Y > p3.Y) 
-							continue;
-						p = p2;
-						//Move to start of region
-						MoveToPoint(p2);
-						//and redo the search
-						done = false;
-					} while (!done);
-
-					ExpandAllRegions();
-					//To collapse nested regions, we need to iterate region blocks from the end of the
-					//file and move upwards.
-					//Fix supplied by DragonWang_SFIS
-					sel.EndOfDocument();
-					_lastCollapsedAllRegionsNotCompleted = true;
-				}
-				//2006-05-30 Fixed ignoring commented regions.
-				//while (sel.FindPattern("^:b*/*\\#region",(int)(vsFindOptions.vsFindOptionsBackwards + (int) vsFindOptions.vsFindOptionsRegularExpression))) {
-				//vs 2012 uses normal regexp expressions
-				while (sel.FindPattern(@"^\s*/*\#region",(int)(vsFindOptions.vsFindOptionsBackwards + (int) vsFindOptions.vsFindOptionsRegularExpression))) {
-					sel.StartOfLine();
-					DTE.ExecuteCommand("Edit.ToggleOutliningExpansion");
-					//		'Try
-					//		'    '2006-10-26 , Dan Händevik; if region is a commented one /* */ then we would collapse the closest overlying region.
-					//		'    'make sure that we are on the start line of the collapsed line...	
-					//		'    '   sel.StartOfLine(vsStartOfLineOptions.vsStartOfLineOptionsFirstColumn)
-					//		'Catch ex As Exception
-					//		'    System.Threading.Thread.Sleep(1000)
-					//		'    sel = DTE.ActiveDocument.Selection
-					//		'    '   sel.StartOfLine(vsStartOfLineOptions.vsStartOfLineOptionsFirstColumn)
-					//		'End Try
-
-				}
-				//restore old point
-				MoveToPoint(p);
-				_lastCollapsedAllRegionsNotCompleted = false;
-			} catch (Exception) {
-				MessageBox.Show(
-					string.Format("Visual Studio threw an exception so CollapseAllRegions couldn't complete.{0}Please run this macro again to continue the function.", Environment.NewLine), "Macro couldn't complete, try again!");
-				//MessageBox.Show(objE.Message + Environment.NewLine + objE.StackTrace, "Failed to collapse region")
-			}
-		}
-
-		[Command("Text Editor::Ctrl+m,Ctrl+m")]
-		public void ToggleParentRegion() {
-			//Dim objSelection As TextSelection
-			var objSelection = (TextSelection)DTE.ActiveDocument.Selection;
-			var point = GetPoint();
-			objSelection.EndOfLine();
-			var endLine = objSelection.ActivePoint.Line;
-			objSelection.LineUp();
-
-			//is the selected line a collapsed outline region?
-			if (endLine - 1 != objSelection.ActivePoint.Line) {
-				MoveToPoint(point);
-				DTE.ExecuteCommand("Edit.ToggleOutliningExpansion");
-			} else {
-				MoveToPoint(point);
-				objSelection.SelectLine();
-				if (objSelection.Text.ToLower().Contains("#region")) {
-					//Updated 14.08.2003
-					MoveToPoint(point);
-					DTE.ExecuteCommand("Edit.ToggleOutliningExpansion");
-					Selection.StartOfLine();
-
-				} else if (objSelection.FindText("#region", (int)vsFindOptions.vsFindOptionsBackwards)) {
-
-					Selection.StartOfLine();
-					DTE.ExecuteCommand("Edit.ToggleOutliningExpansion");
-					Selection.StartOfLine();
-				} else {
-					MoveToPoint(point);
-				}
-
-			}
-		}
+		#endregion
 	}
 }

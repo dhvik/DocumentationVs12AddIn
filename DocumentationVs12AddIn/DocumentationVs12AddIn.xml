@@ -25,11 +25,16 @@
         </member>
         <member name="T:DocumentationVs12AddIn.Commands.CommandBase">
             <summary>
-            Summary description for CommandBase.
+            A base class for Command classes
             </summary>
             <remarks>
             2013-04-08 dan: Created
             </remarks>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.#ctor">
+            <summary>
+            Initializes a new instance of the <b>CommandBase</b> class.
+            </summary>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.CommandBase.QueryStatus(EnvDTE.vsCommandStatusTextWanted,EnvDTE.vsCommandStatus@,System.Object@)">
             <summary>
@@ -53,6 +58,12 @@
             <param name="p"></param>
             <param name="extend"></param>
         </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.CutLeftWord">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetSeeXmlDocTag(System.String)">
             <summary>
             Gets an xml documentation see tag
@@ -65,6 +76,7 @@
             Fixes the selection so that the selection starts at the first column of the first line
             and the active point is at the bottom. if we have started to mark part of the last line, inlcude the whole line
             </summary>
+            <returns></returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.CommandBase.IsBetween(System.Drawing.Point,System.Drawing.Point,System.Drawing.Point)">
             <summary>
@@ -151,6 +163,36 @@
         <member name="P:DocumentationVs12AddIn.Commands.CommandBase.DTE">
             <summary>
             Get/Sets the DTE of the CommandBase
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandBase.Selection">
+            <summary>
+            Gets the Selection of the CommandBase
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandBase.IsHtml">
+            <summary>
+            Gets the IsHtml of the CommandBase
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandBase.IsBasic">
+            <summary>
+            Gets the IsBasic of the CommandBase
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandBase.IsCSharp">
+            <summary>
+            Gets the IsCSharp of the CommandBase
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandBase.Log">
+            <summary>
+            Get/Sets the Log of the CommandBase
             </summary>
             <value></value>
         </member>
@@ -368,6 +410,34 @@
             2013-04-08 dan: Created
             </remarks>
         </member>
+        <member name="M:DocumentationVs12AddIn.Commands.RegionCommands.ExpandAllRegions">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.RegionCommands.CollapseAllRegions">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.RegionCommands.ToggleParentRegion">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.RegionCommands.OutlineRegions">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.RegionCommands.CalcLineNumber(System.String,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="text"></param>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
         <member name="T:DocumentationVs12AddIn.Commands.MiscCommands">
             <summary>
             Summary description for MiscCommands.
@@ -375,6 +445,11 @@
             <remarks>
             2013-04-08 dan: Created
             </remarks>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.KillLine">
+            <summary>
+            
+            </summary>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.CreateDocumentationHeading">
             <summary>
@@ -420,8 +495,8 @@
             <summary>
              Moves the cursor to the next/previos xml doc comment tag
             </summary>
-            <param name="forward" >Should we go to the next, set to true. Go to previous, set to false.</param>
-            <returns >True if we are in an XML doc tag, false otherwize</returns>
+            <param name="forward">Should we go to the next, set to true. Go to previous, set to false.</param>
+            <returns>True if we are in an XML doc tag, false otherwize</returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.AssertEndElement(System.String,System.String,System.String[])">
             <summary>
@@ -441,6 +516,7 @@
             <param name="tagName">The name of the tag to search for</param>
             <param name="attribute">The name of the attribute to ensure</param>
             <param name="value">The value of the attribute to use if no attribute is found</param>
+            <param name="valueFromAttribute"></param>
             <returns>The replaced text</returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.BuildTag(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
@@ -472,6 +548,7 @@
             </summary>
             <param name="m">The Match containing the attribute</param>
             <returns>The match replacement</returns>
+            <exception cref="T:System.ArgumentException">If can't process input, should only be two groups.</exception>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.MiscCommands.ParseAttribute(System.String)">
             <summary>
@@ -479,6 +556,7 @@
             </summary>
             <param name="att">The text to parse</param>
             <returns>The found <see cref="!:KeyValuePair&lt;string,string&gt;"/> or nothing if no attribute was found</returns>
+            <exception cref="T:System.ArgumentException">If more than one attribute was found.</exception>
         </member>
         <member name="T:DocumentationVs12AddIn.Commands.SortLinesCommands">
             <summary>
@@ -509,33 +587,41 @@
             <summary>The object for implementing an Add-in.</summary>
             <seealso class='IDTExtensibility2' />
         </member>
+        <member name="M:DocumentationVs12AddIn.Connect.#ctor">
+            <summary>
+            Initializes a new instance of the <b>Connect</b> class.
+            </summary>
+        </member>
         <member name="M:DocumentationVs12AddIn.Connect.OnConnection(System.Object,Extensibility.ext_ConnectMode,System.Object,System.Array@)">
             <summary>Implements the OnConnection method of the IDTExtensibility2 interface. Receives notification that the Add-in is being loaded.</summary>
-            <param term="application">Root object of the host application.</param>
-            <param term='connectMode'>Describes how the Add-in is being loaded.</param>
-            <param term='addInInst'>Object representing this Add-in.</param>
-            <seealso class='IDTExtensibility2' />
+            <param name="application">Root object of the host application.</param>
+            <param name="connectMode">Describes how the Add-in is being loaded.</param>
+            <param name="addInInst">Object representing this Add-in.</param>
+            <param name="custom"></param>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Connect.CalculateCommandInfos">
+            <summary>
+            Calculates the CommandInfos in the project.
+            </summary>
+            <remarks>These are based on found classes inheriting from CommandBase and methods decorated with the <see cref="T:DocumentationVs12AddIn.Commands.CommandAttribute"/> attribute</remarks>
+            <returns></returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Connect.OnDisconnection(Extensibility.ext_DisconnectMode,System.Array@)">
             <summary>Implements the OnDisconnection method of the IDTExtensibility2 interface. Receives notification that the Add-in is being unloaded.</summary>
-            <param term='disconnectMode'>Describes how the Add-in is being unloaded.</param>
-            <param term='custom'>Array of parameters that are host application specific.</param>
-            <seealso class='IDTExtensibility2' />
+            <param name="disconnectMode">Describes how the Add-in is being unloaded.</param>
+            <param name="custom">Array of parameters that are host application specific.</param>
         </member>
         <member name="M:DocumentationVs12AddIn.Connect.OnAddInsUpdate(System.Array@)">
             <summary>Implements the OnAddInsUpdate method of the IDTExtensibility2 interface. Receives notification when the collection of Add-ins has changed.</summary>
-            <param term='custom'>Array of parameters that are host application specific.</param>
-            <seealso class='IDTExtensibility2' />		
+            <param name="custom">Array of parameters that are host application specific.</param>
         </member>
         <member name="M:DocumentationVs12AddIn.Connect.OnStartupComplete(System.Array@)">
             <summary>Implements the OnStartupComplete method of the IDTExtensibility2 interface. Receives notification that the host application has completed loading.</summary>
-            <param term='custom'>Array of parameters that are host application specific.</param>
-            <seealso class='IDTExtensibility2' />
+            <param name="custom">Array of parameters that are host application specific.</param>
         </member>
         <member name="M:DocumentationVs12AddIn.Connect.OnBeginShutdown(System.Array@)">
             <summary>Implements the OnBeginShutdown method of the IDTExtensibility2 interface. Receives notification that the host application is being unloaded.</summary>
-            <param term='custom'>Array of parameters that are host application specific.</param>
-            <seealso class='IDTExtensibility2' />
+            <param name="custom">Array of parameters that are host application specific.</param>
         </member>
         <member name="M:DocumentationVs12AddIn.Connect.QueryStatus(System.String,EnvDTE.vsCommandStatusTextWanted,EnvDTE.vsCommandStatus@,System.Object@)">
             <summary>

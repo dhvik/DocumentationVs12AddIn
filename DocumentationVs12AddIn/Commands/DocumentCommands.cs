@@ -1285,7 +1285,7 @@ namespace DocumentationVs12AddIn.Commands {
 			text = Regex.Replace(text, "<", "&lt;", RegexOptions.None);
 			text = Regex.Replace(text, ">", "&gt;", RegexOptions.None);
 			text = Regex.Replace(text, "\"", "&quot;", RegexOptions.None);
-			return text;
+			return text; 
 		}
 		#endregion
 		#region "Private Function IsMethodsName(ByVal text As String, ByVal name As String) As Boolean"

@@ -4,10 +4,11 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using EnvDTE;
 using EnvDTE80;
+using log4net;
 
 namespace DocumentationVs12AddIn.Commands {
 	/// <summary>
-	/// Summary description for CommandBase.
+	/// A base class for Command classes
 	/// </summary>
 	/// <remarks>
 	/// 2013-04-08 dan: Created
@@ -30,18 +31,60 @@ namespace DocumentationVs12AddIn.Commands {
 		/// <value></value>
 		public DTE2 DTE { get; set; }
 		#endregion
+		#region protected TextSelection Selection
+		/// <summary>
+		/// Gets the Selection of the CommandBase
+		/// </summary>
+		/// <value></value>
 		protected TextSelection Selection {
-			get { return ((TextSelection) DTE.ActiveDocument.Selection); }
+			get { return ((TextSelection)DTE.ActiveDocument.Selection); }
 		}
+		#endregion
+		#region protected bool IsHtml
+		/// <summary>
+		/// Gets the IsHtml of the CommandBase
+		/// </summary>
+		/// <value></value>
 		protected bool IsHtml {
 			get { return DTE.ActiveWindow.Document.Language == "HTML"; }
 		}
+		#endregion
+		#region protected bool IsBasic
+		/// <summary>
+		/// Gets the IsBasic of the CommandBase
+		/// </summary>
+		/// <value></value>
 		protected bool IsBasic {
 			get { return DTE.ActiveWindow.Document.Language == "Basic"; }
 		}
+		#endregion
+		#region protected bool IsCSharp
+		/// <summary>
+		/// Gets the IsCSharp of the CommandBase
+		/// </summary>
+		/// <value></value>
 		protected bool IsCSharp {
 			get { return DTE.ActiveWindow.Document.Language == "CSharp"; }
 		}
+		#endregion
+		#region protected ILog Log
+		/// <summary>
+		/// Get/Sets the Log of the CommandBase
+		/// </summary>
+		/// <value></value>
+		protected ILog Log { get; private set; }
+		#endregion
+		/* *******************************************************************
+		 *  Constructors
+		 * *******************************************************************/
+		#region protected CommandBase()
+		/// <summary>
+		/// Initializes a new instance of the <b>CommandBase</b> class.
+		/// </summary>
+		protected CommandBase() {
+			Log = LogManager.GetLogger(GetType());
+		}
+		#endregion
 		/* *******************************************************************
          *  Methods 
          * *******************************************************************/
@@ -56,8 +99,7 @@ namespace DocumentationVs12AddIn.Commands {
 			status = vsCommandStatus.vsCommandStatusSupported | vsCommandStatus.vsCommandStatusEnabled;
 		}
 		#endregion
-	
-
+		#region protected Point GetPoint(TextPoint tp = null)
 		/// <summary>
 		/// Gets the point from the supplied textpoint
 		/// </summary>
@@ -69,7 +111,8 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return new Point(tp.LineCharOffset, tp.Line);
 		}
-
+		#endregion
+		#region protected void MoveToPoint(Point p, bool extend = false)
 		/// <summary>
 		///  Moves the current Selection to the supplied point (offset, line) (x,y)
 		/// </summary>
@@ -78,9 +121,14 @@ namespace DocumentationVs12AddIn.Commands {
 		protected void MoveToPoint(Point p, bool extend = false) {
 			Selection.MoveToLineAndOffset(p.Y, p.X, extend);
 		}
-
+		#endregion
+		#region protected string CutLeftWord()
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		protected string CutLeftWord() {
-			
+
 			//get templateName
 			Selection.WordLeft(true);
 			string word = Selection.Text;
@@ -90,7 +138,8 @@ namespace DocumentationVs12AddIn.Commands {
 
 			return word;
 		}
-
+		#endregion
+		#region protected string GetSeeXmlDocTag(string type)
 		/// <summary>
 		/// Gets an xml documentation see tag
 		/// </summary>
@@ -113,11 +162,13 @@ namespace DocumentationVs12AddIn.Commands {
 
 			return pre + "<see cref=\"" + type + "\"/>" + post;
 		}
-
-		///<summary>
-		///Fixes the selection so that the selection starts at the first column of the first line
-		///and the active point is at the bottom. if we have started to mark part of the last line, inlcude the whole line
-		///</summary>
+		#endregion
+		#region protected TextSelection FixSelection()
+		/// <summary>
+		/// Fixes the selection so that the selection starts at the first column of the first line
+		/// and the active point is at the bottom. if we have started to mark part of the last line, inlcude the whole line
+		/// </summary>
+		/// <returns></returns>
 		protected TextSelection FixSelection() {
 
 			var sel = Selection;
@@ -138,7 +189,8 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return sel;
 		}
-
+		#endregion
+		#region protected bool IsBetween(Point p, Point startPoint, Point endPoint)
 		/// <summary>
 		/// Checks if a point is between the given start and end points
 		/// </summary>
@@ -189,7 +241,8 @@ namespace DocumentationVs12AddIn.Commands {
 			return false;
 
 		}
-
+		#endregion
+		#region protected CodeElement GetElement()
 		/// <summary>
 		/// Gets the CodeElement where the cursor is positioned.
 		/// </summary>
@@ -247,7 +300,8 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return (CodeElement)o;
 		}
-
+		#endregion
+		#region protected void PasteSeeXmlDocParamTag()
 		/// <summary>
 		/// Pastes a See xml doc tag in the current xml documentation node
 		/// </summary>
@@ -262,10 +316,7 @@ namespace DocumentationVs12AddIn.Commands {
 			CodeTypeRef type = default(CodeTypeRef);
 
 			CodeElement ce = GetNextElement();
-			switch (string.Empty) {
-				case "apa":
-					break;
-			}
+
 			string s = GetTagName(xmlDocTag);
 			switch (s) {
 				case "param":
@@ -294,7 +345,8 @@ namespace DocumentationVs12AddIn.Commands {
 
 
 		}
-
+		#endregion
+		#region protected string GetSeeXmlDocTagByType(CodeTypeRef type)
 		/// <summary>
 		/// Gets a xml documentation see tag by supplying a CodeTypeRef
 		/// </summary>
@@ -303,7 +355,8 @@ namespace DocumentationVs12AddIn.Commands {
 		protected string GetSeeXmlDocTagByType(CodeTypeRef type) {
 			return GetSeeXmlDocTag(GetTypeName(type));
 		}
-
+		#endregion
+		#region protected string GetTypeName(CodeTypeRef type)
 		/// <summary>
 		/// Gets the name of the supplied type.
 		/// </summary>
@@ -338,7 +391,8 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return finalName;
 		}
-
+		#endregion
+		#region private string RemoveRedundantQualifiersFromTypeName(string typeName, List<string> importedNamespaces)
 		/// <summary>
 		/// Shortens the type name to minimize the type name
 		/// </summary>
@@ -370,7 +424,8 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return finalName;
 		}
-
+		#endregion
+		#region private List<string> GetImportedNamespaces()
 		/// <summary>
 		/// Gets the imported namespaces for the current document.
 		/// </summary>
@@ -394,7 +449,8 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return list;
 		}
-
+		#endregion
+		#region private string GetCurrentXmlDocTag()
 		/// <summary>
 		/// Gets the current XmlDoc tag
 		/// </summary>
@@ -427,7 +483,8 @@ namespace DocumentationVs12AddIn.Commands {
 			MoveToPoint(p);
 			return tag;
 		}
-
+		#endregion
+		#region private string GetTagName(string tag)
 		/// <summary>
 		/// Gets the tagname of the supplied xml tag
 		/// </summary>
@@ -440,7 +497,8 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return null;
 		}
-
+		#endregion
+		#region private CodeTypeRef GetParameterType(CodeElement ce, string parameterName)
 		/// <summary>
 		/// Gets the type of the parameter
 		/// </summary>
@@ -470,7 +528,8 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return null;
 		}
-
+		#endregion
+		#region private CodeTypeRef GetReturnValueType(CodeElement ce)
 		/// <summary>
 		/// Gets the returnvalue type of the given CodeElement
 		/// </summary>
@@ -487,7 +546,8 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return null;
 		}
-
+		#endregion
+		#region private CodeElement GetNextElement()
 		/// <summary>
 		/// Gets the next CodeElement that follows the cursor
 		/// </summary>
@@ -557,5 +617,6 @@ namespace DocumentationVs12AddIn.Commands {
 			}
 			return null;
 		}
+		#endregion
 	}
 }
