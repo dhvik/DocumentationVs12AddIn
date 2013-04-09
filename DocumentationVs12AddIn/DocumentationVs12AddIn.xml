@@ -1,0 +1,458 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DocumentationVs12AddIn</name>
+    </assembly>
+    <members>
+        <member name="T:DocumentationVs12AddIn.Commands.CommandAttribute">
+            <summary>
+            Summary description for CommandAttribute.
+            </summary>
+            <remarks>
+            2013-04-08 dan: Created
+            </remarks>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <b>CommandAttribute</b> class.
+            </summary>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandAttribute.Name">
+            <summary>
+            Get/Sets the Name of the CommandAttribute
+            </summary>
+            <value></value>
+        </member>
+        <member name="T:DocumentationVs12AddIn.Commands.CommandBase">
+            <summary>
+            Summary description for CommandBase.
+            </summary>
+            <remarks>
+            2013-04-08 dan: Created
+            </remarks>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.QueryStatus(EnvDTE.vsCommandStatusTextWanted,EnvDTE.vsCommandStatus@,System.Object@)">
+            <summary>
+            
+            </summary>
+            <param name="neededText"></param>
+            <param name="status"></param>
+            <param name="commandText"></param>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetPoint(EnvDTE.TextPoint)">
+            <summary>
+            Gets the point from the supplied textpoint
+            </summary>
+            <param name="tp"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.MoveToPoint(System.Drawing.Point,System.Boolean)">
+            <summary>
+             Moves the current Selection to the supplied point (offset, line) (x,y)
+            </summary>
+            <param name="p"></param>
+            <param name="extend"></param>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.GetSeeXmlDocTag(System.String)">
+            <summary>
+            Gets an xml documentation see tag
+            </summary>
+            <param name="type">Name of the type to refer to</param>
+            <returns>The see tag</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.CommandBase.FixSelection">
+            <summary>
+            Fixes the selection so that the selection starts at the first column of the first line
+            and the active point is at the bottom. if we have started to mark part of the last line, inlcude the whole line
+            </summary>
+        </member>
+        <member name="P:DocumentationVs12AddIn.Commands.CommandBase.DTE">
+            <summary>
+            Get/Sets the DTE of the CommandBase
+            </summary>
+            <value></value>
+        </member>
+        <member name="T:DocumentationVs12AddIn.Commands.DocumentCommands">
+            <summary>
+            Summary description for DocumentCommands.
+            </summary>
+            <remarks>
+            2013-04-09 dan: Created
+            </remarks>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.SetCursorToNodeText(System.Xml.XmlNode,System.Boolean,System.Boolean)">
+            <summary>
+             Sets the position of the cursor to the supplied node of the xml
+            documentation
+            </summary>
+            <param name="node" ></param>
+            <returns ></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.IsBetween(System.Drawing.Point,System.Drawing.Point,System.Drawing.Point)">
+            <summary>
+            Checks if a point is between the given start and end points
+            </summary>
+            <param name="p">The <see cref="T:System.Drawing.Point"/> to check</param>
+            <param name="startPoint">The Startpoint</param>
+            <param name="endPoint">The endpoint</param>
+            <returns>True if the point is between the start and end points, false otherwize.</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.CountLineBreaks(System.String)">
+            <summary>
+            Counts the number of linebreaks in the text
+            </summary>
+            <param name="text">The text to search</param>
+            <returns>The number of linebreaks</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.SaveXMLDocumentation(System.Xml.XmlDocument,EnvDTE.CodeElement)">
+            <summary>
+            Saves the supplied xml documentation to the element
+            </summary>
+            <param name="xdoc">The <see cref="T:System.Xml.XmlDocument"/> to save</param>
+            <param name="element">The <see cref="T:EnvDTE.CodeElement"/> to save it to.</param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetPropertyInfo(EnvDTE.CodeElement,System.String)">
+            <summary>
+            Gets the propertyinfo for the supplied method of the element.
+            </summary>
+            <param name="element">The <see cref="T:EnvDTE.CodeElement"/> to get the property info from</param>
+            <param name="name">The name of the property.</param>
+            <returns>The found <see cref="!:Reflection.PropertyInfo"/> </returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetXmlDocumentation(System.Xml.XmlDocument)">
+            <summary>
+             Gets the xml from the xml document
+            </summary>
+            <param name="xdoc" ></param>
+            <returns ></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.FormatBasicXmlDocumentation(System.String)">
+            <summary>
+            Performs formatting of the supplied doc xml to lines starting with ''' 
+            </summary>
+            <param name="xml">The xml text to format</param>
+            <returns>The formatted text</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.AutoDocumentItem(EnvDTE.CodeElement,System.Xml.XmlDocument)">
+            <summary>
+            Creates documentation for the supplied element
+            </summary>
+            <param name="elem">The <see cref="T:EnvDTE.CodeElement"/> to document</param>
+            <param name="xdoc">The <see cref="T:System.Xml.XmlDocument"/> containing the documentation</param>
+            <param name="returnType">The return <see cref="T:EnvDTE.CodeTypeRef"/> of the element</param>
+            <param name="parameters">The list of <see cref="T:EnvDTE.CodeElements"/> sent as parameters</param>
+            <returns>The last <see cref="T:System.Xml.XmlNode"/> of the documentation.</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.AddParameters(System.Xml.XmlDocument,EnvDTE.CodeElements,System.Xml.XmlNode)">
+            <summary>
+             Adds the parameters to the xml document.
+            </summary>
+            <param name="xdoc" >The xml document</param>
+            <param name="parameters" >The collection of parameters</param>
+            <param name="lastNode" >The node to place the created/found node after</param>
+            <returns ></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetParameterXmlNode(System.Xml.XmlDocument,System.String)">
+            <summary>
+            Gets the node containing the supplied parameter documentation
+            </summary>
+            <param name="xdoc">The Xmldocument containing the nodes</param>
+            <param name="name">The name of the parameter</param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.RemoveEmptyElements(System.Xml.XmlDocument)">
+            <summary>
+            Removes all empty child elements from the /doc element
+            </summary>
+            <param name="xdoc">The xml document</param>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.AddReturnValue(System.Xml.XmlDocument,EnvDTE.CodeTypeRef,System.Xml.XmlNode)">
+            <summary>
+             Adds the returnvalue parameter to the xmldocument
+            </summary>
+            <param name="xdoc" >The xml document</param>
+            <param name="type" >The type of returnvalue</param>
+            <param name="lastNode" >The node to place the created/found node after</param>
+            <returns ></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.AddXMLDocNode(System.Xml.XmlDocument,System.String,System.Xml.XmlNode)">
+            <summary>
+            Adds the supplied xml doc node after the supplied lastNode. 
+            if the node already exists it is placed after the supplied lastNode.
+            </summary>
+            <param name="xdoc"></param>
+            <param name="name"></param>
+            <param name="lastNode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.PrepareXMLDocumentation(EnvDTE.CodeElement)">
+            <summary>
+            Prepares the XML documentation for the supplied element
+            </summary>
+            <param name="element">The <see cref="T:EnvDTE.CodeElement"/> prepare</param>
+            <returns>The prepared <see cref="T:System.Xml.XmlDocument"/> </returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.EnsureNode(System.Xml.XmlDocument,System.String,System.String,System.Boolean)">
+            <summary>
+            Makes sure that the supplied node exists in the document
+            </summary>
+            <param name="xdoc" ></param>
+            <param name="path" ></param>
+            <param name="defaultValue" ></param>
+            <param name="firstNode" ></param>
+            <returns ></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.SwapNodes(System.Xml.XmlNode,System.Xml.XmlNode)">
+            <summary>
+             swaps two nodes places. Will only work if the nodes have the same parent.
+            </summary>
+            <param name="n1" ></param>
+            <param name="n2" ></param>
+            <returns ></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetDocumentationElement">
+            <summary>
+            Gets the element that contains the documentation.
+            </summary>
+            <returns>The found element</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetElement">
+            <summary>
+            Gets the CodeElement where the cursor is positioned.
+            </summary>
+            <returns>The found element</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.PasteSeeXmlDocParamTag">
+            <summary>
+            Pastes a See xml doc tag in the current xml documentation node
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetSeeXmlDocTagByType(EnvDTE.CodeTypeRef)">
+            <summary>
+            Gets a xml documentation see tag by supplying a CodeTypeRef
+            </summary>
+            <param name="type">The type to get the see tag of</param>
+            <returns>The see tag</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetTypeName(EnvDTE.CodeTypeRef)">
+            <summary>
+            Gets the name of the supplied type.
+            </summary>
+            <param name="type">The type</param>
+            <returns>The name of the type</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.RemoveRedundantQualifiersFromTypeName(System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            Shortens the type name to minimize the type name
+            </summary>
+            <param name="typeName">The name of the type</param>
+            <param name="importedNamespaces">The <see cref="T:System.Collections.Generic.List`1"/> of imported namespaces</param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetImportedNamespaces">
+            <summary>
+            Gets the imported namespaces for the current document.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetHtmlTagType(System.String,System.String)">
+            <summary>
+            Gets a html tag with the supplied type as content
+            </summary>
+            <param name="type">Contents of the tag</param>
+            <param name="tag">Name of the tag</param>
+            <returns>The constructed tag</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetCurrentXmlDocTag">
+            <summary>
+            Gets the current XmlDoc tag
+            </summary>
+            <returns>The complete xml tag that we are in</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetTagName(System.String)">
+            <summary>
+            Gets the tagname of the supplied xml tag
+            </summary>
+            <param name="tag">The xml tag</param>
+            <returns>The element name of the tag</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetParameterType(EnvDTE.CodeElement,System.String)">
+            <summary>
+            Gets the type of the parameter
+            </summary>
+            <param name="ce">The codeElement (CodeFunction) that has the parameter</param>
+            <param name="parameterName">The name of the parameter</param>
+            <returns>The type that the parameter has, or nothing if the parameter was not found</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetReturnValueType(EnvDTE.CodeElement)">
+            <summary>
+            Gets the returnvalue type of the given CodeElement
+            </summary>
+            <param name="ce">The code element to retrieve the return type from</param>
+            <returns>The <see cref="T:EnvDTE.CodeTypeRef"/> that is the returnvalue of the element</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetNextElement">
+            <summary>
+            Gets the next CodeElement that follows the cursor
+            </summary>
+            <returns>The found <see cref="T:EnvDTE.CodeElement"/> or Nothing if no more elements could be found</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.HTMLEncodeText(System.String)">
+            <summary>
+            Encodes the supplied text to html
+            </summary>
+            <param name="text">The <see cref="T:System.String"/>  to encode</param>
+            <returns>The encoded <see cref="T:System.String"/> </returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.IsMethodsName(System.String,System.String)">
+            <summary>
+            Checks if the supplied text contains a method name of the supplied name. (inlcuding explicit interface member names)
+            </summary>
+            <param name="text">The text to check</param>
+            <param name="name">The name to look for</param>
+            <returns>True if the name was found, false otherwize</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.SplitOnPascalCasing(System.String)">
+            <summary>
+            Splits a string on pascal casing
+            </summary>
+            <param name="text">The text to split</param>
+            <returns>an array of strings</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.IsTypeNamed(EnvDTE.CodeTypeRef,System.String)">
+            <summary>
+            Checks if the supplied type has the supplied name
+            </summary>
+            <param name="type">The <see cref="T:EnvDTE.CodeTypeRef"/> to check</param>
+            <param name="name">The name of the type to compare with</param>
+            <returns>True if type is named as the supplied name, otherwise false.</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.CreateElement(System.Xml.XmlDocument,System.String,System.Boolean)">
+            <summary>
+            Creates an element at the supplied path. If the parent elements doesn't exists, they are created aswell.
+            If the element already exists, it will be returned.
+            </summary>
+            <param name="doc">The document that the element should be created in</param>
+            <param name="elementPath">The absolute path to the element</param>
+            <returns>The created (or found) node</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.SetAttribute(System.Xml.XmlNode,System.String,System.String)">
+            <summary>
+            Sets an attribute value in the the supplied node
+            </summary>
+            <param name="node">The node to create the attribute in</param>
+            <param name="attrName">The name of the attribute</param>
+            <param name="attrValue">The value of the attribute</param>
+            <returns></returns>
+        </member>
+        <member name="T:DocumentationVs12AddIn.Commands.PasteTemplateCommand">
+            <summary>
+            Summary description for PasteTemplateCommand.
+            </summary>
+            <remarks>
+            2013-04-09 dan: Created
+            </remarks>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:DocumentationVs12AddIn.Commands.PasteTemplateCommand.PasteTemplate" -->
+        <member name="T:DocumentationVs12AddIn.Commands.RegionCommands">
+            <summary>
+            Summary description for RegionCommands.
+            </summary>
+            <remarks>
+            2013-04-08 dan: Created
+            </remarks>
+        </member>
+        <member name="T:DocumentationVs12AddIn.Commands.KillLineCommand">
+            <summary>
+            Summary description for KillLineCommand.
+            </summary>
+            <remarks>
+            2013-04-08 dan: Created
+            </remarks>
+        </member>
+        <member name="T:DocumentationVs12AddIn.Commands.SortLinesCommands">
+            <summary>
+            Summary description for SortLinesCommands.
+            </summary>
+            <remarks>
+            2013-04-09 dan: Created
+            </remarks>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.SortLinesCommands.SortLinesAscending">
+            <summary>
+            Sorts the selected lines in ascending order
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.SortLinesCommands.SortLinesDescending">
+            <summary>
+            Sorts the selected lines in descending order
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.SortLinesCommands.SortLines(System.Boolean)">
+            <summary>
+            Sorts the selected lines
+            </summary>
+            <param name="reverse" ></param>
+            <returns ></returns>
+        </member>
+        <member name="T:DocumentationVs12AddIn.Connect">
+            <summary>The object for implementing an Add-in.</summary>
+            <seealso class='IDTExtensibility2' />
+        </member>
+        <member name="M:DocumentationVs12AddIn.Connect.OnConnection(System.Object,Extensibility.ext_ConnectMode,System.Object,System.Array@)">
+            <summary>Implements the OnConnection method of the IDTExtensibility2 interface. Receives notification that the Add-in is being loaded.</summary>
+            <param term="application">Root object of the host application.</param>
+            <param term='connectMode'>Describes how the Add-in is being loaded.</param>
+            <param term='addInInst'>Object representing this Add-in.</param>
+            <seealso class='IDTExtensibility2' />
+        </member>
+        <member name="M:DocumentationVs12AddIn.Connect.OnDisconnection(Extensibility.ext_DisconnectMode,System.Array@)">
+            <summary>Implements the OnDisconnection method of the IDTExtensibility2 interface. Receives notification that the Add-in is being unloaded.</summary>
+            <param term='disconnectMode'>Describes how the Add-in is being unloaded.</param>
+            <param term='custom'>Array of parameters that are host application specific.</param>
+            <seealso class='IDTExtensibility2' />
+        </member>
+        <member name="M:DocumentationVs12AddIn.Connect.OnAddInsUpdate(System.Array@)">
+            <summary>Implements the OnAddInsUpdate method of the IDTExtensibility2 interface. Receives notification when the collection of Add-ins has changed.</summary>
+            <param term='custom'>Array of parameters that are host application specific.</param>
+            <seealso class='IDTExtensibility2' />		
+        </member>
+        <member name="M:DocumentationVs12AddIn.Connect.OnStartupComplete(System.Array@)">
+            <summary>Implements the OnStartupComplete method of the IDTExtensibility2 interface. Receives notification that the host application has completed loading.</summary>
+            <param term='custom'>Array of parameters that are host application specific.</param>
+            <seealso class='IDTExtensibility2' />
+        </member>
+        <member name="M:DocumentationVs12AddIn.Connect.OnBeginShutdown(System.Array@)">
+            <summary>Implements the OnBeginShutdown method of the IDTExtensibility2 interface. Receives notification that the host application is being unloaded.</summary>
+            <param term='custom'>Array of parameters that are host application specific.</param>
+            <seealso class='IDTExtensibility2' />
+        </member>
+        <member name="M:DocumentationVs12AddIn.Connect.QueryStatus(System.String,EnvDTE.vsCommandStatusTextWanted,EnvDTE.vsCommandStatus@,System.Object@)">
+            <summary>
+            
+            </summary>
+            <param name="commandName"></param>
+            <param name="neededText"></param>
+            <param name="status"></param>
+            <param name="commandText"></param>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Connect.Exec(System.String,EnvDTE.vsCommandExecOption,System.Object@,System.Object@,System.Boolean@)">
+            <summary>
+            
+            </summary>
+            <param name="commandName"></param>
+            <param name="executeOption"></param>
+            <param name="varIn"></param>
+            <param name="varOut"></param>
+            <param name="handled"></param>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Connect.BindPreserve(System.String,System.String)">
+            <summary>
+            Binds the supplied textcommand to the supplied binding
+            </summary>
+            <param name="textcommand"></param>
+            <param name="binding"></param>
+        </member>
+    </members>
+</doc>
