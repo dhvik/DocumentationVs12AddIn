@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Resources;
 
 //
 // General Information about an assembly is controlled through the following 
@@ -12,7 +13,7 @@
 [assembly: AssemblyProduct("")]
 [assembly: AssemblyCopyright("(c) 2013 Meriworks")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("neutral")]
+[assembly: AssemblyCulture("")]
 //
 // Version information for an assembly consists of the following four values:
 //
@@ -47,3 +48,4 @@
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("")]
 [assembly: AssemblyKeyName("")]
+[assembly: NeutralResourcesLanguageAttribute("")]
