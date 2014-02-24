@@ -241,13 +241,63 @@
             2013-04-09 dan: Created
             </remarks>
         </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.DocumentThis">
+            <summary>
+            Documents the current member
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.DocumentAndRegionizeThis">
+            <summary>
+            Documents the current member and adds regions
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.EnterCodeRemark">
+            <summary>
+            Enters a remark on the format yyyy-MM-dd, domain/user:
+            </summary>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.DocumentAndRegionize(System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="regionize"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.RegionizeCodeElement(EnvDTE.CodeElement)">
+            <summary>
+            </summary>
+            <param name="elem"></param>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetDeclaration(EnvDTE.CodeElement)">
+            <summary>
+            
+            </summary>
+            <param name="elem"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.ShouldCodeElementBeRegionized(EnvDTE.CodeElement)">
+            <summary>
+            
+            </summary>
+            <param name="element"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetElementType(EnvDTE.CodeElement)">
+            <summary>
+            
+            </summary>
+            <param name="element"></param>
+            <returns></returns>
+            <exception cref="T:System.ApplicationException">If unknown element kind .</exception>
+        </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.SetCursorToNodeText(System.Xml.XmlNode,System.Boolean,System.Boolean)">
             <summary>
              Sets the position of the cursor to the supplied node of the xml
             documentation
             </summary>
-            <param name="node" ></param>
-            <returns ></returns>
+            <param name="node"></param>
+            <param name="positionLast"></param>
+            <param name="searchForCursorMark"></param>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.CountLineBreaks(System.String)">
             <summary>
@@ -270,14 +320,15 @@
             </summary>
             <param name="element">The <see cref="T:EnvDTE.CodeElement"/> to get the property info from</param>
             <param name="name">The name of the property.</param>
-            <returns>The found <see cref="!:Reflection.PropertyInfo"/> </returns>
+            <returns>The found <see cref="!:Reflection.PropertyInfo"/>
+            </returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetXmlDocumentation(System.Xml.XmlDocument)">
             <summary>
              Gets the xml from the xml document
             </summary>
-            <param name="xdoc" ></param>
-            <returns ></returns>
+            <param name="xdoc"></param>
+            <returns></returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.FormatBasicXmlDocumentation(System.String)">
             <summary>
@@ -292,18 +343,27 @@
             </summary>
             <param name="elem">The <see cref="T:EnvDTE.CodeElement"/> to document</param>
             <param name="xdoc">The <see cref="T:System.Xml.XmlDocument"/> containing the documentation</param>
+            <returns>The last <see cref="T:System.Xml.XmlNode"/> of the documentation.</returns>
             <param name="returnType">The return <see cref="T:EnvDTE.CodeTypeRef"/> of the element</param>
             <param name="parameters">The list of <see cref="T:EnvDTE.CodeElements"/> sent as parameters</param>
-            <returns>The last <see cref="T:System.Xml.XmlNode"/> of the documentation.</returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.AutoDocumentExceptions(EnvDTE.CodeElement,System.Xml.XmlDocument,System.Xml.XmlNode)">
+            <summary>
+            
+            </summary>
+            <param name="elem"></param>
+            <param name="xdoc"></param>
+            <param name="lastNode"></param>
+            <returns></returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.AddParameters(System.Xml.XmlDocument,EnvDTE.CodeElements,System.Xml.XmlNode)">
             <summary>
              Adds the parameters to the xml document.
             </summary>
-            <param name="xdoc" >The xml document</param>
-            <param name="parameters" >The collection of parameters</param>
-            <param name="lastNode" >The node to place the created/found node after</param>
-            <returns ></returns>
+            <param name="xdoc">The xml document</param>
+            <param name="parameters">The collection of parameters</param>
+            <param name="lastNode">The node to place the created/found node after</param>
+            <returns></returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetParameterXmlNode(System.Xml.XmlDocument,System.String)">
             <summary>
@@ -318,15 +378,16 @@
             Removes all empty child elements from the /doc element
             </summary>
             <param name="xdoc">The xml document</param>
+            <returns></returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.AddReturnValue(System.Xml.XmlDocument,EnvDTE.CodeTypeRef,System.Xml.XmlNode)">
             <summary>
              Adds the returnvalue parameter to the xmldocument
             </summary>
-            <param name="xdoc" >The xml document</param>
-            <param name="type" >The type of returnvalue</param>
-            <param name="lastNode" >The node to place the created/found node after</param>
-            <returns ></returns>
+            <param name="xdoc">The xml document</param>
+            <param name="type">The type of returnvalue</param>
+            <param name="lastNode">The node to place the created/found node after</param>
+            <returns></returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.AddXMLDocNode(System.Xml.XmlDocument,System.String,System.Xml.XmlNode)">
             <summary>
@@ -343,25 +404,48 @@
             Prepares the XML documentation for the supplied element
             </summary>
             <param name="element">The <see cref="T:EnvDTE.CodeElement"/> prepare</param>
-            <returns>The prepared <see cref="T:System.Xml.XmlDocument"/> </returns>
+            <returns>The prepared <see cref="T:System.Xml.XmlDocument"/>
+            </returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.EnsureNode(System.Xml.XmlDocument,System.String,System.String,System.Boolean)">
             <summary>
             Makes sure that the supplied node exists in the document
             </summary>
-            <param name="xdoc" ></param>
-            <param name="path" ></param>
-            <param name="defaultValue" ></param>
-            <param name="firstNode" ></param>
-            <returns ></returns>
+            <param name="xdoc"></param>
+            <param name="path"></param>
+            <param name="defaultValue"></param>
+            <param name="firstNode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.HasNode(System.Xml.XmlDocument,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="xdoc"></param>
+            <param name="path"></param>
+            <returns></returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.SwapNodes(System.Xml.XmlNode,System.Xml.XmlNode)">
             <summary>
              swaps two nodes places. Will only work if the nodes have the same parent.
             </summary>
-            <param name="n1" ></param>
-            <param name="n2" ></param>
-            <returns ></returns>
+            <param name="n1"></param>
+            <param name="n2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetParent(EnvDTE.CodeElement)">
+            <summary>
+            
+            </summary>
+            <param name="elem"></param>
+            <returns></returns>
+        </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetParentFullName(EnvDTE.CodeElement)">
+            <summary>
+            
+            </summary>
+            <param name="elem"></param>
+            <returns></returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetDocumentationElement">
             <summary>
@@ -382,7 +466,8 @@
             Encodes the supplied text to html
             </summary>
             <param name="text">The <see cref="T:System.String"/>  to encode</param>
-            <returns>The encoded <see cref="T:System.String"/> </returns>
+            <returns>The encoded <see cref="T:System.String"/>
+            </returns>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.IsMethodsName(System.String,System.String)">
             <summary>
@@ -407,6 +492,13 @@
             <param name="name">The name of the type to compare with</param>
             <returns>True if type is named as the supplied name, otherwise false.</returns>
         </member>
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.GetElementContent(EnvDTE.CodeElement)">
+            <summary>
+            
+            </summary>
+            <param name="elem"></param>
+            <returns></returns>
+        </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.CreateElement(System.Xml.XmlDocument,System.String,System.Boolean)">
             <summary>
             Creates an element at the supplied path. If the parent elements doesn't exists, they are created aswell.
@@ -414,7 +506,10 @@
             </summary>
             <param name="doc">The document that the element should be created in</param>
             <param name="elementPath">The absolute path to the element</param>
+            <param name="create"></param>
             <returns>The created (or found) node</returns>
+            <exception cref="T:System.ArgumentNullException">If <paramref name="elementPath"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">If the elementpath doesn't support condition .</exception>
         </member>
         <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.SetAttribute(System.Xml.XmlNode,System.String,System.String)">
             <summary>
@@ -423,12 +518,12 @@
             <param name="node">The node to create the attribute in</param>
             <param name="attrName">The name of the attribute</param>
             <param name="attrValue">The value of the attribute</param>
-            <returns></returns>
         </member>
-        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.EnterCodeRemark">
+        <member name="M:DocumentationVs12AddIn.Commands.DocumentCommands.DocumentAndRegionizeHtml(System.Boolean)">
             <summary>
-            Enters a remark on the format yyyy-MM-dd, domain/user:
+            
             </summary>
+            <param name="regionize"></param>
         </member>
         <member name="T:DocumentationVs12AddIn.Commands.PasteTemplateCommand">
             <summary>

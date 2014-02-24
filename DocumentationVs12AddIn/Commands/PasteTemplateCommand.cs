@@ -12,7 +12,7 @@ namespace DocumentationVs12AddIn.Commands {
 	/// <remarks>
 	/// 2013-04-09 dan: Created
 	/// </remarks>
-	public class PasteTemplateCommand :CommandBase {
+	public class PasteTemplateCommand : CommandBase {
 		#region public void PasteTemplate()
 		/// <summary>
 		/// Creates a template insertion by the written keyword
@@ -143,11 +143,7 @@ namespace DocumentationVs12AddIn.Commands {
 						m = Regex.Match(type, "EventHandler\\s*\\<\\s*(?<ArgsType>[^\\>]+)\\s*\\>", RegexOptions.Singleline);
 						if (m.Success) {
 							argsType = m.Groups["ArgsType"].Value.Trim();
-						} else if (type.IndexOfAny(new char[] {
-					',',
-					'<',
-					'>'
-				}) > -1) {
+						} else if (type.IndexOfAny(new[] { ',', '<', '>' }) > -1) {
 							MessageBox.Show("The eventhandler type " + type + " is not supported");
 							return;
 						}
@@ -190,7 +186,7 @@ namespace DocumentationVs12AddIn.Commands {
 
 						string assignment = m.Groups["Assignment"].Value.Trim();
 						string type = m.Groups["Type"].Value.Trim();
-						bool singleLineMethods = false;
+						bool singletonPattern = false;
 
 						string declaration = "";
 
@@ -223,19 +219,20 @@ namespace DocumentationVs12AddIn.Commands {
 							template += indent + "\t" + "\t" + "}" + Environment.NewLine;
 							template += indent + "\t" + "\t" + "return _instance;" + Environment.NewLine;
 							template += indent + "\t";
+							singletonPattern = true;
 						} else {
-							singleLineMethods = true;
 							template += " return _instance; ";
 						}
 						template += "}" + Environment.NewLine;
 						template += indent + "}" + Environment.NewLine;
 						//private variable
-						template += indent + "private static " + type + " _instance";
-						if (assignment.Length > 0) {
+						template += indent + "private " + (singletonPattern ? "volatile " : "readonly ") + "static " + type + " _instance";
+						if (assignment.Length > 0 && !singletonPattern) {
 							template += " " + assignment;
 						}
 						template += ";" + Environment.NewLine;
-						template += indent + "private static readonly object InstanceLock = new object();" + Environment.NewLine;
+						if (singletonPattern)
+							template += indent + "private static readonly object InstanceLock = new object();" + Environment.NewLine;
 						template += indent + "#endregion" + Environment.NewLine;
 						break; // TODO: might not be correct. Was : Exit Select
 					}
@@ -274,33 +271,33 @@ namespace DocumentationVs12AddIn.Commands {
 						if (m.Groups["AccessModifier"].Success) {
 							accessModifier = m.Groups["AccessModifier"].Value.Trim();
 						}
-						string type = m.Groups["Type"].Value.Trim();
-						string name = m.Groups["Name"].Value.Trim();
+						var type = m.Groups["Type"].Value.Trim();
+						var name = m.Groups["Name"].Value.Trim();
 						if (name.StartsWith("_") & name.Length > 1) {
 							name = name.Substring(1, 1).ToUpper() + name.Substring(2);
 							accessModifier = "public";
 						}
-						string localName = "_" + name.ToLower()[0] + name.Substring(1);
-						bool IsStatic = (m.Groups["Static"].Value.Length > 0);
-						bool IsVirtual = (m.Groups["Virtual"].Value.Length > 0);
-						bool IsOverride = (m.Groups["Override"].Value.Length > 0);
-						bool IsNew = (m.Groups["New"].Value.Length > 0);
-						bool HasAssignment = (assignment.Length > 0 && !assignment.Contains("null"));
-						bool autoProperty = !HasAssignment;
+						var localName = "_" + name.ToLower()[0] + name.Substring(1);
+						var isStatic = (m.Groups["Static"].Value.Length > 0);
+						var isVirtual = (m.Groups["Virtual"].Value.Length > 0);
+						var isOverride = (m.Groups["Override"].Value.Length > 0);
+						var isNew = (m.Groups["New"].Value.Length > 0);
+						var hasAssignment = (assignment.Length > 0 && !assignment.Contains("null"));
+						//var autoProperty = !hasAssignment;
 
 						//Property start, accessModifier
 						template += accessModifier + " ";
 
-						if (IsStatic) {
+						if (isStatic) {
 							template += "static ";
 						}
-						if (IsVirtual) {
+						if (isVirtual) {
 							template += "virtual ";
 						}
-						if (IsOverride) {
+						if (isOverride) {
 							template += "override ";
 						}
-						if (IsNew) {
+						if (isNew) {
 							template += "new ";
 						}
 						//Property type and name
@@ -308,7 +305,7 @@ namespace DocumentationVs12AddIn.Commands {
 
 
 						//Get method
-						if (HasAssignment) {
+						if (hasAssignment) {
 							template += Environment.NewLine;
 							template += indent + "\t" + "get {return " + localName + ";}" + Environment.NewLine;
 						} else {
@@ -316,13 +313,13 @@ namespace DocumentationVs12AddIn.Commands {
 						}
 
 						//set method
-						if (HasAssignment) {
+						if (hasAssignment) {
 							template += indent + "\t" + "set {" + localName + " = value;}" + Environment.NewLine;
 							template += indent + "}" + Environment.NewLine;
 
 							//private variable
 							template += indent + "private ";
-							if (IsStatic) {
+							if (isStatic) {
 								template += "static ";
 							}
 							template += type + " " + localName;
@@ -409,41 +406,41 @@ namespace DocumentationVs12AddIn.Commands {
 							name = name.Substring(1, 1).ToUpper() + name.Substring(2);
 							accessModifier = "public";
 						}
-						string localName = "_" + name.ToLower()[0] + name.Substring(1);
-						bool IsStatic = (m.Groups["Static"].Value.Length > 0);
-						bool IsVirtual = (m.Groups["Virtual"].Value.Length > 0);
-						bool IsOverride = (m.Groups["Override"].Value.Length > 0);
-						bool IsNew = (m.Groups["New"].Value.Length > 0);
-						bool HasSetter = (m.Groups["set"].Value.Length > 0);
-						bool HasGetter = (m.Groups["get"].Value.Length > 0);
+						var localName = "_" + name.ToLower()[0] + name.Substring(1);
+						var isStatic = (m.Groups["Static"].Value.Length > 0);
+						var isVirtual = (m.Groups["Virtual"].Value.Length > 0);
+						var isOverride = (m.Groups["Override"].Value.Length > 0);
+						var isNew = (m.Groups["New"].Value.Length > 0);
+						var hasSetter = (m.Groups["set"].Value.Length > 0);
+						var hasGetter = (m.Groups["get"].Value.Length > 0);
 
 						//Property start, accessModifier
 						template += accessModifier + " ";
 
-						if (IsStatic) {
+						if (isStatic) {
 							template += "static ";
 						}
-						if (IsVirtual) {
+						if (isVirtual) {
 							template += "virtual ";
 						}
-						if (IsOverride) {
+						if (isOverride) {
 							template += "override ";
 						}
-						if (IsNew) {
+						if (isNew) {
 							template += "new ";
 						}
 						//Property type and name
 						template += type + " " + name + " {" + Environment.NewLine;
 
 						//Get method
-						if (HasGetter) {
+						if (hasGetter) {
 							template += indent + "\t" + "get {";
 							template += " return " + localName + "; ";
 							template += "}" + Environment.NewLine;
 						}
 
 						//set method
-						if (HasSetter) {
+						if (hasSetter) {
 							template += indent + "\t" + "set {";
 							template += " " + localName + " = value; ";
 							template += "}" + Environment.NewLine;
@@ -452,7 +449,7 @@ namespace DocumentationVs12AddIn.Commands {
 
 						//private variable
 						template += indent + "private ";
-						if (IsStatic) {
+						if (isStatic) {
 							template += "static ";
 						}
 						template += type + " " + localName;
@@ -464,8 +461,6 @@ namespace DocumentationVs12AddIn.Commands {
 					template = "}";
 
 					break; // TODO: might not be correct. Was : Exit Select
-
-					break;
 				case "{":
 					sel.SelectLine();
 					sel.SwapAnchor();
@@ -494,8 +489,8 @@ namespace DocumentationVs12AddIn.Commands {
 
 			//find marker
 			//if a marker exists in the teplate
-			if (template!=null && template.Contains("|")) {
-				if (sel.FindPattern("|", (int) vsFindOptions.vsFindOptionsBackwards)) {
+			if (template != null && template.Contains("|")) {
+				if (sel.FindPattern("|", (int)vsFindOptions.vsFindOptionsBackwards)) {
 					sel.Delete();
 				}
 			}
