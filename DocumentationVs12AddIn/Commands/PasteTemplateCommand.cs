@@ -12,7 +12,7 @@ namespace DocumentationVs12AddIn.Commands {
 	/// <remarks>
 	/// 2013-04-09 dan: Created
 	/// </remarks>
-	public class PasteTemplateCommand :CommandBase {
+	public class PasteTemplateCommand : CommandBase {
 		#region public void PasteTemplate()
 		/// <summary>
 		/// Creates a template insertion by the written keyword
@@ -190,7 +190,7 @@ namespace DocumentationVs12AddIn.Commands {
 
 						string assignment = m.Groups["Assignment"].Value.Trim();
 						string type = m.Groups["Type"].Value.Trim();
-						bool singleLineMethods = false;
+						bool singletonPattern = false;
 
 						string declaration = "";
 
@@ -223,19 +223,20 @@ namespace DocumentationVs12AddIn.Commands {
 							template += indent + "\t" + "\t" + "}" + Environment.NewLine;
 							template += indent + "\t" + "\t" + "return _instance;" + Environment.NewLine;
 							template += indent + "\t";
+							singletonPattern = true;
 						} else {
-							singleLineMethods = true;
 							template += " return _instance; ";
 						}
 						template += "}" + Environment.NewLine;
 						template += indent + "}" + Environment.NewLine;
 						//private variable
-						template += indent + "private static " + type + " _instance";
-						if (assignment.Length > 0) {
+						template += indent + "private " + (singletonPattern ? "volatile " : "readonly ") + "static " + type + " _instance";
+						if (assignment.Length > 0 && !singletonPattern) {
 							template += " " + assignment;
 						}
 						template += ";" + Environment.NewLine;
-						template += indent + "private static readonly object InstanceLock = new object();" + Environment.NewLine;
+						if (singletonPattern)
+							template += indent + "private static readonly object InstanceLock = new object();" + Environment.NewLine;
 						template += indent + "#endregion" + Environment.NewLine;
 						break; // TODO: might not be correct. Was : Exit Select
 					}
@@ -494,8 +495,8 @@ namespace DocumentationVs12AddIn.Commands {
 
 			//find marker
 			//if a marker exists in the teplate
-			if (template!=null && template.Contains("|")) {
-				if (sel.FindPattern("|", (int) vsFindOptions.vsFindOptionsBackwards)) {
+			if (template != null && template.Contains("|")) {
+				if (sel.FindPattern("|", (int)vsFindOptions.vsFindOptionsBackwards)) {
 					sel.Delete();
 				}
 			}
